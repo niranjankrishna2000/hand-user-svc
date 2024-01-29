@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	UserService_UserFeeds_FullMethodName           = "/user.UserService/UserFeeds"
 	UserService_CreatePost_FullMethodName          = "/user.UserService/CreatePost"
+	UserService_GetCreatePost_FullMethodName       = "/user.UserService/GetCreatePost"
 	UserService_UserPostDetails_FullMethodName     = "/user.UserService/UserPostDetails"
 	UserService_Donate_FullMethodName              = "/user.UserService/Donate"
 	UserService_MakePaymentRazorPay_FullMethodName = "/user.UserService/MakePaymentRazorPay"
@@ -44,6 +45,7 @@ const (
 type UserServiceClient interface {
 	UserFeeds(ctx context.Context, in *UserFeedsRequest, opts ...grpc.CallOption) (*UserFeedsResponse, error)
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*CreatePostResponse, error)
+	GetCreatePost(ctx context.Context, in *GetCreatePostRequest, opts ...grpc.CallOption) (*GetCreatePostResponse, error)
 	UserPostDetails(ctx context.Context, in *UserPostDetailsRequest, opts ...grpc.CallOption) (*UserPostDetailsResponse, error)
 	Donate(ctx context.Context, in *DonateRequest, opts ...grpc.CallOption) (*DonateResponse, error)
 	MakePaymentRazorPay(ctx context.Context, in *MakePaymentRazorPayRequest, opts ...grpc.CallOption) (*MakePaymentRazorPayResponse, error)
@@ -82,6 +84,15 @@ func (c *userServiceClient) UserFeeds(ctx context.Context, in *UserFeedsRequest,
 func (c *userServiceClient) CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*CreatePostResponse, error) {
 	out := new(CreatePostResponse)
 	err := c.cc.Invoke(ctx, UserService_CreatePost_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetCreatePost(ctx context.Context, in *GetCreatePostRequest, opts ...grpc.CallOption) (*GetCreatePostResponse, error) {
+	out := new(GetCreatePostResponse)
+	err := c.cc.Invoke(ctx, UserService_GetCreatePost_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -229,6 +240,7 @@ func (c *userServiceClient) ClearNotification(ctx context.Context, in *ClearNoti
 type UserServiceServer interface {
 	UserFeeds(context.Context, *UserFeedsRequest) (*UserFeedsResponse, error)
 	CreatePost(context.Context, *CreatePostRequest) (*CreatePostResponse, error)
+	GetCreatePost(context.Context, *GetCreatePostRequest) (*GetCreatePostResponse, error)
 	UserPostDetails(context.Context, *UserPostDetailsRequest) (*UserPostDetailsResponse, error)
 	Donate(context.Context, *DonateRequest) (*DonateResponse, error)
 	MakePaymentRazorPay(context.Context, *MakePaymentRazorPayRequest) (*MakePaymentRazorPayResponse, error)
@@ -257,6 +269,9 @@ func (UnimplementedUserServiceServer) UserFeeds(context.Context, *UserFeedsReque
 }
 func (UnimplementedUserServiceServer) CreatePost(context.Context, *CreatePostRequest) (*CreatePostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
+}
+func (UnimplementedUserServiceServer) GetCreatePost(context.Context, *GetCreatePostRequest) (*GetCreatePostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCreatePost not implemented")
 }
 func (UnimplementedUserServiceServer) UserPostDetails(context.Context, *UserPostDetailsRequest) (*UserPostDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserPostDetails not implemented")
@@ -348,6 +363,24 @@ func _UserService_CreatePost_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).CreatePost(ctx, req.(*CreatePostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetCreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCreatePostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetCreatePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetCreatePost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetCreatePost(ctx, req.(*GetCreatePostRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -636,6 +669,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreatePost",
 			Handler:    _UserService_CreatePost_Handler,
+		},
+		{
+			MethodName: "GetCreatePost",
+			Handler:    _UserService_GetCreatePost_Handler,
 		},
 		{
 			MethodName: "UserPostDetails",

@@ -7,7 +7,8 @@ option go_package = "./pkg/pb";
 service UserService {
   rpc UserFeeds(UserFeedsRequest) returns (UserFeedsResponse) {}
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {}
-  rpc UserPostDetails(UserPostDetailsRequest) returns (UserPostDetailsResponse) {}
+  rpc GetCreatePost(GetCreatePostRequest) returns (GetCreatePostResponse){}
+  rpc UserPostDetails(UserPostDetailsRequest) returns(UserPostDetailsResponse) {}
   rpc Donate(DonateRequest) returns (DonateResponse) {}
   rpc MakePaymentRazorPay(MakePaymentRazorPayRequest) returns (MakePaymentRazorPayResponse) {}
   rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse) {}
@@ -50,6 +51,7 @@ message CreatePostRequest {
   int32 userid = 6;
   string accno =7;
   string address =8;
+  int32 categoryid=9;
 }
 
 message EditPostResponse {
@@ -74,6 +76,18 @@ message CreatePostResponse {
   string response = 2;
   Post post = 3;
 }
+message Category {
+  int32 categoryid=1;
+  string category=2;
+}
+message GetCreatePostRequest{}
+
+message GetCreatePostResponse{
+  int64 status = 1;
+  string response = 2;
+  repeated Category categories=3;
+}
+
 
 message UserPostDetailsRequest {
   int32 postID = 1;
@@ -143,6 +157,7 @@ message Post {
   string account_no =9;
   string address = 10;
   int32 likes =11;
+  int32 categoryid=12;
 }
 message Comment {
   int32 id=1;
@@ -286,6 +301,13 @@ message ClearNotificationResponse {
   string response = 2;
 }
 
+message User {
+  string name = 1;
+  string email = 2;
+  string phone = 3;
+  string status = 4;
+  int32 id = 5;
+}
 
 
 

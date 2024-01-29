@@ -19,7 +19,26 @@ type Server struct {
 	H db.Handler
 	pb.UnimplementedUserServiceServer
 }
+func (s *Server) GetCreatePost(ctx context.Context, req *pb.GetCreatePostRequest) (*pb.GetCreatePostResponse, error) {
 
+	log.Println("Category Request List started")
+	var categoryList []*pb.Category
+	sqlQuery := "SELECT * FROM categories"
+	if err := s.H.DB.Raw(sqlQuery).Scan(&categoryList).Error; err != nil {
+		return &pb.GetCreatePostResponse{
+			Status: http.StatusBadGateway,
+			Response: "error when fetching from db: "+err.Error(),
+			Categories: []*pb.Category{},
+		}, errors.New("couldnt fetch categories")
+	}
+	log.Println("Data Recieved: ", req)
+	return &pb.GetCreatePostResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully Fetched the data",
+		Categories: categoryList,
+	}, nil
+
+}
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
 
 	log.Println("Post creation started")
@@ -32,28 +51,32 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 			Status:   http.StatusBadRequest,
 			Response: "Error Parsing time string",
 			Post:     &pb.Post{},
-		}, err
+		}, errors.New("invalid date format")
 	}
 	query := `
-    INSERT INTO posts (text, place,image, date, amount,user_id,account_no,address)
-    VALUES (?, ?, ?, ?, ?,?,?,?) RETURNING id
+    INSERT INTO posts (text, place,image, date, amount,user_id,account_no,address,cat_id)
+    VALUES (?, ?, ?, ?, ?,?,?,?,?) RETURNING id
 	`
-	s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address).Scan(&PostID)
+	s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address,req.Categoryid).Scan(&PostID)
 	var postdetails *pb.Post
 
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", PostID).Scan(&postdetails).Error; err != nil {
 		return &pb.CreatePostResponse{
 			Status:   http.StatusBadRequest,
-			Response: "couldn't get posts from DB",
+			Response: "couldn't get posts from DB"+err.Error(),
 			Post:     &pb.Post{},
-		}, err
+		}, errors.New("could not fetch post")
 	}
 	return &pb.CreatePostResponse{
 		Status:   http.StatusCreated,
-		Response: "",
+		Response: "Successfully created post",
 		Post:     postdetails,
 	}, nil
 }
+//test image nil
+//test category
+
+
 
 func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.UserFeedsResponse, error) {
 
@@ -82,12 +105,12 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get posts from DB",
 			Posts:    []*pb.Post{},
-		}, err
+		}, errors.New("could not fetch posts")
 	}
 	log.Println("feeds:", postdetails)
 	return &pb.UserFeedsResponse{
 		Status:   http.StatusOK,
-		Response: "",
+		Response: "got all records",
 		Posts:    postdetails,
 	}, nil
 
@@ -697,26 +720,6 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 	}, nil
 }
 
-func (s *Server) ClearHistory(ctx context.Context, req *pb.ClearHistoryRequest) (*pb.ClearHistoryResponse, error) {
-	log.Println("ClearHistory started")
-	log.Println("Collected Data: ", req)
-
-	if req.Userid < 1 {
-		return &pb.ClearHistoryResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid user ID",
-		}, errors.New("invalid user ID")
-	}
-	err := s.H.DB.Exec("delete from payments where user_id=?", req.Userid).Error
-	if err != nil {
-		return &pb.ClearHistoryResponse{Status: http.StatusBadGateway, Response: "Could not clear the history"}, err
-	}
-	return &pb.ClearHistoryResponse{
-		Status:   http.StatusOK,
-		Response: "Successfully Cleared history",
-	}, nil
-}
-
 // notification
 func (s *Server) Notifications(ctx context.Context, req *pb.NotificationRequest) (*pb.NotificationResponse, error) {
 	log.Println("Notifications started")
@@ -854,6 +857,9 @@ func (s *Server) ClearNotification(ctx context.Context, req *pb.ClearNotificatio
 	}, nil
 }
 
+
+
+
 // utils
 func (s *Server) Getpost(postId int) (*pb.Post, error) {
 	var postdetails *pb.Post
@@ -886,7 +892,15 @@ func (s *Server) Notify(userId int, fromId int, postId int, notificationType str
 	s.H.DB.Raw(query, fromId, userId, postId, time.Now(), text, notificationType)
 	return nil
 }
+func (s *Server) CheckUserId(userId int32) (*pb.User, error) {
+	var user pb.User
 
+	if result := s.H.DB.Where(&pb.User{Id: int32(userId)}).First(&user); result.Error != nil {
+		log.Println(result.Error)
+		return nil, errors.New("user not found")
+	}
+	return &user,nil
+}
 // func (s *Server) VerifyPayment(paymentID string, razorID string, orderID string) error {
 
 // 	err := p.paymentRepository.UpdatePaymentDetails(orderID, paymentID, razorID)
