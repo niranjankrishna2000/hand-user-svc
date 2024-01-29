@@ -11,15 +11,14 @@ service UserService {
   rpc Donate(DonateRequest) returns (DonateResponse) {}
   rpc MakePaymentRazorPay(MakePaymentRazorPayRequest) returns (MakePaymentRazorPayResponse) {}
   rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse) {}
-  ////////////////////////////////////////////////////////////////////////////////
   rpc ReportPost(ReportPostRequest) returns (ReportPostResponse) {}
+  //rpc (Request) returns (Response) {}
   rpc EditPost(EditPostRequest) returns (EditPostResponse) {}
   rpc LikePost(LikePostRequest) returns (LikePostResponse) {}
   rpc CommentPost(CommentPostRequest) returns (CommentPostResponse) {}
   rpc ReportComment(ReportCommentRequest) returns (ReportCommentResponse) {}
   rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse) {}
   rpc DonationHistory(DonationHistoryRequest) returns (DonationHistoryResponse) {}
-  rpc ClearHistory(ClearHistoryRequest) returns (ClearHistoryResponse) {}
   rpc Notifications(NotificationRequest) returns (NotificationResponse) {}
   rpc NotificationDetail(NotificationDetailsRequest) returns (NotificationDetailsResponse) {}
   rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse) {}
@@ -144,7 +143,6 @@ message Post {
   string account_no =9;
   string address = 10;
   int32 likes =11;
-  int32 categoryId=12;
 }
 message Comment {
   int32 id=1;
@@ -237,14 +235,6 @@ message Donation {
   string paymentid=5; 
 }
 
-message ClearHistoryRequest {
-  int32 userid = 1;
-}
-
-message ClearHistoryResponse {
-  int64 status = 1;
-  string response = 2;
-}
 
 message Notification {
   int32 id =1;
@@ -298,3 +288,8 @@ message ClearNotificationResponse {
 
 
 
+
+//////////////////////////////////////////////////////////////
+//note: **add comments on post details
+// **add date extention
+//**add post edit

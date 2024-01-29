@@ -32,7 +32,6 @@ const (
 	UserService_ReportComment_FullMethodName       = "/user.UserService/ReportComment"
 	UserService_DeleteComment_FullMethodName       = "/user.UserService/DeleteComment"
 	UserService_DonationHistory_FullMethodName     = "/user.UserService/DonationHistory"
-	UserService_ClearHistory_FullMethodName        = "/user.UserService/ClearHistory"
 	UserService_Notifications_FullMethodName       = "/user.UserService/Notifications"
 	UserService_NotificationDetail_FullMethodName  = "/user.UserService/NotificationDetail"
 	UserService_DeleteNotification_FullMethodName  = "/user.UserService/DeleteNotification"
@@ -49,15 +48,14 @@ type UserServiceClient interface {
 	Donate(ctx context.Context, in *DonateRequest, opts ...grpc.CallOption) (*DonateResponse, error)
 	MakePaymentRazorPay(ctx context.Context, in *MakePaymentRazorPayRequest, opts ...grpc.CallOption) (*MakePaymentRazorPayResponse, error)
 	GenerateInvoice(ctx context.Context, in *GenerateInvoiceRequest, opts ...grpc.CallOption) (*GenerateInvoiceResponse, error)
-	// //////////////////////////////////////////////////////////////////////////////
 	ReportPost(ctx context.Context, in *ReportPostRequest, opts ...grpc.CallOption) (*ReportPostResponse, error)
+	// rpc (Request) returns (Response) {}
 	EditPost(ctx context.Context, in *EditPostRequest, opts ...grpc.CallOption) (*EditPostResponse, error)
 	LikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*LikePostResponse, error)
 	CommentPost(ctx context.Context, in *CommentPostRequest, opts ...grpc.CallOption) (*CommentPostResponse, error)
 	ReportComment(ctx context.Context, in *ReportCommentRequest, opts ...grpc.CallOption) (*ReportCommentResponse, error)
 	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error)
 	DonationHistory(ctx context.Context, in *DonationHistoryRequest, opts ...grpc.CallOption) (*DonationHistoryResponse, error)
-	ClearHistory(ctx context.Context, in *ClearHistoryRequest, opts ...grpc.CallOption) (*ClearHistoryResponse, error)
 	Notifications(ctx context.Context, in *NotificationRequest, opts ...grpc.CallOption) (*NotificationResponse, error)
 	NotificationDetail(ctx context.Context, in *NotificationDetailsRequest, opts ...grpc.CallOption) (*NotificationDetailsResponse, error)
 	DeleteNotification(ctx context.Context, in *DeleteNotificationRequest, opts ...grpc.CallOption) (*DeleteNotificationResponse, error)
@@ -189,15 +187,6 @@ func (c *userServiceClient) DonationHistory(ctx context.Context, in *DonationHis
 	return out, nil
 }
 
-func (c *userServiceClient) ClearHistory(ctx context.Context, in *ClearHistoryRequest, opts ...grpc.CallOption) (*ClearHistoryResponse, error) {
-	out := new(ClearHistoryResponse)
-	err := c.cc.Invoke(ctx, UserService_ClearHistory_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userServiceClient) Notifications(ctx context.Context, in *NotificationRequest, opts ...grpc.CallOption) (*NotificationResponse, error) {
 	out := new(NotificationResponse)
 	err := c.cc.Invoke(ctx, UserService_Notifications_FullMethodName, in, out, opts...)
@@ -244,15 +233,14 @@ type UserServiceServer interface {
 	Donate(context.Context, *DonateRequest) (*DonateResponse, error)
 	MakePaymentRazorPay(context.Context, *MakePaymentRazorPayRequest) (*MakePaymentRazorPayResponse, error)
 	GenerateInvoice(context.Context, *GenerateInvoiceRequest) (*GenerateInvoiceResponse, error)
-	// //////////////////////////////////////////////////////////////////////////////
 	ReportPost(context.Context, *ReportPostRequest) (*ReportPostResponse, error)
+	// rpc (Request) returns (Response) {}
 	EditPost(context.Context, *EditPostRequest) (*EditPostResponse, error)
 	LikePost(context.Context, *LikePostRequest) (*LikePostResponse, error)
 	CommentPost(context.Context, *CommentPostRequest) (*CommentPostResponse, error)
 	ReportComment(context.Context, *ReportCommentRequest) (*ReportCommentResponse, error)
 	DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error)
 	DonationHistory(context.Context, *DonationHistoryRequest) (*DonationHistoryResponse, error)
-	ClearHistory(context.Context, *ClearHistoryRequest) (*ClearHistoryResponse, error)
 	Notifications(context.Context, *NotificationRequest) (*NotificationResponse, error)
 	NotificationDetail(context.Context, *NotificationDetailsRequest) (*NotificationDetailsResponse, error)
 	DeleteNotification(context.Context, *DeleteNotificationRequest) (*DeleteNotificationResponse, error)
@@ -302,9 +290,6 @@ func (UnimplementedUserServiceServer) DeleteComment(context.Context, *DeleteComm
 }
 func (UnimplementedUserServiceServer) DonationHistory(context.Context, *DonationHistoryRequest) (*DonationHistoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DonationHistory not implemented")
-}
-func (UnimplementedUserServiceServer) ClearHistory(context.Context, *ClearHistoryRequest) (*ClearHistoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClearHistory not implemented")
 }
 func (UnimplementedUserServiceServer) Notifications(context.Context, *NotificationRequest) (*NotificationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Notifications not implemented")
@@ -565,24 +550,6 @@ func _UserService_DonationHistory_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_ClearHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClearHistoryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).ClearHistory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_ClearHistory_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).ClearHistory(ctx, req.(*ClearHistoryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _UserService_Notifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NotificationRequest)
 	if err := dec(in); err != nil {
@@ -713,10 +680,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DonationHistory",
 			Handler:    _UserService_DonationHistory_Handler,
-		},
-		{
-			MethodName: "ClearHistory",
-			Handler:    _UserService_ClearHistory_Handler,
 		},
 		{
 			MethodName: "Notifications",
