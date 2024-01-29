@@ -19,6 +19,7 @@ type Server struct {
 	H db.Handler
 	pb.UnimplementedUserServiceServer
 }
+
 func (s *Server) GetCreatePost(ctx context.Context, req *pb.GetCreatePostRequest) (*pb.GetCreatePostResponse, error) {
 
 	log.Println("Category Request List started")
@@ -26,15 +27,15 @@ func (s *Server) GetCreatePost(ctx context.Context, req *pb.GetCreatePostRequest
 	sqlQuery := "SELECT * FROM categories"
 	if err := s.H.DB.Raw(sqlQuery).Scan(&categoryList).Error; err != nil {
 		return &pb.GetCreatePostResponse{
-			Status: http.StatusBadGateway,
-			Response: "error when fetching from db: "+err.Error(),
+			Status:     http.StatusBadGateway,
+			Response:   "error when fetching from db: " + err.Error(),
 			Categories: []*pb.Category{},
 		}, errors.New("couldnt fetch categories")
 	}
 	log.Println("Data Recieved: ", req)
 	return &pb.GetCreatePostResponse{
-		Status:   http.StatusOK,
-		Response: "Successfully Fetched the data",
+		Status:     http.StatusOK,
+		Response:   "Successfully Fetched the data",
 		Categories: categoryList,
 	}, nil
 
@@ -57,13 +58,13 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
     INSERT INTO posts (text, place,image, date, amount,user_id,account_no,address,cat_id)
     VALUES (?, ?, ?, ?, ?,?,?,?,?) RETURNING id
 	`
-	s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address,req.Categoryid).Scan(&PostID)
+	s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address, req.Categoryid).Scan(&PostID)
 	var postdetails *pb.Post
 
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", PostID).Scan(&postdetails).Error; err != nil {
 		return &pb.CreatePostResponse{
 			Status:   http.StatusBadRequest,
-			Response: "couldn't get posts from DB"+err.Error(),
+			Response: "couldn't get posts from DB" + err.Error(),
 			Post:     &pb.Post{},
 		}, errors.New("could not fetch post")
 	}
@@ -73,10 +74,9 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 		Post:     postdetails,
 	}, nil
 }
+
 //test image nil
 //test category
-
-
 
 func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.UserFeedsResponse, error) {
 
@@ -98,7 +98,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 	if req.Searchkey != "" {
 		sqlQuery += " AND (text ILIKE '%" + req.Searchkey + "%' OR place ILIKE '%" + req.Searchkey + "%')"
 	}
-	sqlQuery += " ORDER BY date DESC, amount DESC LIMIT ? OFFSET ?"
+	sqlQuery += " ORDER BY date DESC, amount DESC, cat_id DESC LIMIT ? OFFSET ?"
 
 	if err := s.H.DB.Raw(sqlQuery, limit, offset).Scan(&postdetails).Error; err != nil {
 		return &pb.UserFeedsResponse{
@@ -123,17 +123,13 @@ func (s *Server) UserPostDetails(ctx context.Context, req *pb.UserPostDetailsReq
 	var post pb.Post
 	if err := s.H.DB.Raw("SELECT * FROM posts WHERE id=? AND (status = 'approved' OR status ='expired')", req.PostID).Scan(&post).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println(err.Error())
 			return &pb.UserPostDetailsResponse{
 				Status:   http.StatusNotFound,
 				Response: "Post Not Found",
 				Post:     &pb.PostDetails{},
-			}, nil
+			}, errors.New("post not found")
 		}
-		// return &pb.UserPostDetailsResponse{
-		// 	Status:   http.StatusInternalServerError,
-		// 	Response: "Failed to fetch post details",
-		// 	Post:     &pb.PostDetails{},
-		// }, err
 	}
 	Comments, err := s.GetComments(int(req.PostID))
 	if err != nil {
@@ -160,25 +156,55 @@ func (s *Server) Donate(ctx context.Context, req *pb.DonateRequest) (*pb.DonateR
 
 	log.Println("Donation started")
 	var postdetails *pb.Post
-	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", req.Postid).Scan(&postdetails).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM posts where id=? and status='approved'", req.Postid).Scan(&postdetails).Error; err != nil {
 		return &pb.DonateResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get post from DB",
+			Post:     &pb.Post{},
+			Link:     "",
 		}, err
+	}
+	date, err := time.Parse(time.RFC3339, postdetails.Date)
+	if err != nil {
+		return &pb.DonateResponse{
+			Status:   http.StatusBadRequest,
+			Response: "couldn't parse date",
+			Post:     &pb.Post{},
+			Link:     "",
+		}, errors.New("couldn't parse date")
+	}
+	//test
+	if postdetails.Amount <= postdetails.Collected || date.Before(time.Now()) {
+		err := s.H.DB.Exec("UPDATE posts SET status = 'expired' WHERE id = ?", req.Postid).Error
+		if err != nil {
+			return &pb.DonateResponse{
+				Status:   http.StatusBadRequest,
+				Response: "couldn't update post in DB: " + err.Error(),
+				Post:     &pb.Post{},
+				Link:     "",
+			}, errors.New("couldn't update post in DB")
+		}
+
+		return &pb.DonateResponse{
+			Status:   http.StatusBadRequest,
+			Response: "campaign expired",
+			Post:     postdetails,
+			Link:     "",
+		}, errors.New("campaign expired")
 	}
 	//create new data and return id
 	var payID int32
 	query := `
-    INSERT INTO payments (user_id, post_id,amount, date)
-    VALUES (?, ?, ?, ?) RETURNING id
+    INSERT INTO payments (user_id, post_id,amount, date,status)
+    VALUES (?, ?, ?, ?,?) RETURNING id
 	`
-	s.H.DB.Raw(query, req.Userid, req.Postid, req.Amount, time.Now()).Scan(&payID)
+	s.H.DB.Raw(query, req.Userid, req.Postid, req.Amount, time.Now(), "pending").Scan(&payID)
 
-	link := fmt.Sprintf("http://localhost:1111/user/post/donate/razorpay?payid=%d", payID)
+	link := fmt.Sprintf("https://handcrowdfunding.online/user/post/donate/razorpay?payid=%d", payID)
 
 	return &pb.DonateResponse{
 		Status:   http.StatusOK,
-		Response: "",
+		Response: "Click on the link to donate",
 		Link:     link,
 		Post:     postdetails,
 	}, nil
@@ -191,8 +217,8 @@ func (s *Server) MakePaymentRazorPay(ctx context.Context, req *pb.MakePaymentRaz
 	if err := s.H.DB.Raw("SELECT * FROM payments WHERE id=? AND status = 'pending'", req.Payid).Scan(&paymentdetail).Error; err != nil {
 		return &pb.MakePaymentRazorPayResponse{
 			Status:   http.StatusBadRequest,
-			Response: "Payment Not Available",
-		}, err
+			Response: "Payment Not Available:" + err.Error(),
+		}, errors.New("payment unavaliable")
 	}
 	log.Println("collected data:", paymentdetail)
 	newid := paymentdetail.PostID
@@ -232,16 +258,20 @@ func (s *Server) MakePaymentRazorPay(ctx context.Context, req *pb.MakePaymentRaz
 	err = s.H.DB.Exec("UPDATE payments set status = 'completed' , payment_id = ? where id = ?", razorPayOrderID, paymentdetail.Id).Error
 	if err != nil {
 		fmt.Println(err)
-		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: err.Error()}, err
+		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "could not update payment details" + err.Error()}, errors.New("payment comeplete. error when updating payments")
 	}
-	//notify
-	// query := `
-	// INSERT INTO notifications (user_id, post_id,time, text, type)
-	// VALUES (?, ?, ?, ?, ?,?,?,?) RETURNING id
-	// `
-	// s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address).Scan(&PostID)
-	// var postdetails *pb.Post
+	post,err:=s.CheckPostId(int32(paymentdetail.PostID))
+	if err != nil {
+		fmt.Println(err)
+		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "notification error: "+err.Error()}, errors.New("could not send notification")
 
+	}
+	err = s.Notify(int(post.UserId), paymentdetail.UserID, paymentdetail.PostID, "donation")
+	if err != nil {
+		fmt.Println(err)
+		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "notification error: "+err.Error()}, errors.New("could not send notification")
+
+	}
 	return &postDetails, nil
 }
 
@@ -252,14 +282,14 @@ func (s *Server) GenerateInvoice(ctx context.Context, req *pb.GenerateInvoiceReq
 	if err := s.H.DB.Raw("SELECT * FROM payments WHERE payment_id=? AND status = 'completed'", req.InvoiceId).Scan(&paymentdetail).Error; err != nil {
 		return &pb.GenerateInvoiceResponse{
 			Status:   http.StatusBadRequest,
-			Response: "Payment Data Not Available",
-		}, err
+			Response: "Payment Data Not Available:"+err.Error(),
+		}, errors.New("payment data not found")
 	}
 	if err := s.H.DB.Raw("SELECT CONCAT(account_no, ' ', address) FROM posts WHERE id=?", paymentdetail.PostID).Scan(&address).Error; err != nil {
 		return &pb.GenerateInvoiceResponse{
 			Status:   http.StatusBadRequest,
-			Response: "Payment Data Not Available",
-		}, err
+			Response: "Payment address Data Not Available:"+err.Error(),
+		}, errors.New("payment address Data Not Available")
 	}
 
 	log.Println("collected data:", paymentdetail, address)
@@ -279,26 +309,26 @@ func (s *Server) ReportPost(ctx context.Context, req *pb.ReportPostRequest) (*pb
 	log.Println("ReportPost started")
 	log.Println("Collected Data: ", req)
 
-	if req.Postid < 1 {
-		log.Println("Invalid Post ID")
-		return &pb.ReportPostResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid Post ID",
-		}, errors.New("invalid Post ID")
-	}
-	if req.Userid < 1 {
-		log.Println("Invalid user ID")
-		return &pb.ReportPostResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid user ID",
-		}, errors.New("invalid user ID")
-	}
-	if req.Text == "" {
-		return &pb.ReportPostResponse{
-			Status:   http.StatusBadRequest,
-			Response: "no text found",
-		}, errors.New("no text found")
-	}
+	// if req.Postid < 1 {
+	// 	log.Println("Invalid Post ID")
+	// 	return &pb.ReportPostResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid Post ID",
+	// 	}, errors.New("invalid Post ID")
+	// }
+	// if req.Userid < 1 {
+	// 	log.Println("Invalid user ID")
+	// 	return &pb.ReportPostResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid user ID",
+	// 	}, errors.New("invalid user ID")
+	// }
+	// if req.Text == "" {
+	// 	return &pb.ReportPostResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "no text found",
+	// 	}, errors.New("no text found")
+	// }
 	var postId int32
 	query := `
     INSERT INTO reporteds (reason,user_id,post_id,category)
@@ -310,8 +340,9 @@ func (s *Server) ReportPost(ctx context.Context, req *pb.ReportPostRequest) (*pb
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", postId).Scan(&postdetails).Error; err != nil {
 		return &pb.ReportPostResponse{
 			Status:   http.StatusBadRequest,
-			Response: "couldn't get posts from DB",
-		}, err
+			Response: "couldn't get posts from DB: "+err.Error(),
+			Post: &pb.Post{},
+		}, errors.New("couldn't get post")
 	}
 	return &pb.ReportPostResponse{
 		Status:   http.StatusOK,
@@ -324,24 +355,24 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	log.Println("ReportComment started")
 	log.Println("Collected Data: ", req)
 
-	if req.Commentid < 1 {
-		return &pb.ReportCommentResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid comment ID",
-		}, errors.New("invalid comment ID")
-	}
-	if req.Userid < 1 {
-		return &pb.ReportCommentResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid user ID",
-		}, errors.New("invalid user ID")
-	}
-	if req.Text == "" {
-		return &pb.ReportCommentResponse{
-			Status:   http.StatusBadRequest,
-			Response: "no text found",
-		}, errors.New("no text found")
-	}
+	// if req.Commentid < 1 {
+	// 	return &pb.ReportCommentResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid comment ID",
+	// 	}, errors.New("invalid comment ID")
+	// }
+	// if req.Userid < 1 {
+	// 	return &pb.ReportCommentResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid user ID",
+	// 	}, errors.New("invalid user ID")
+	// }
+	// if req.Text == "" {
+	// 	return &pb.ReportCommentResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "no text found",
+	// 	}, errors.New("no text found")
+	// }
 	var postId int
 	query := `
     INSERT INTO reporteds (reason,user_id,comment_id,category)
@@ -351,13 +382,15 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 		log.Printf("Failed to insert report: %v", err)
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusInternalServerError,
-			Response: "Failed to insert report",
-		}, err
+			Response: "Failed to insert report:"+err.Error(),
+			Post: &pb.PostDetails{},
+		}, errors.New("failed to insert report")
 	}
 	if err := s.H.DB.Raw("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get postid from DB",
+			Post: &pb.PostDetails{},
 		}, errors.New("could not get postid from DB")
 	}
 	var postdetails *pb.PostDetails
@@ -372,7 +405,8 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	if err := s.H.DB.Raw("SELECT * FROM comments where post_id=?", postId).Scan(&postdetails.Comments).Error; err != nil {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
-			Response: "couldn't get post from DB",
+			Response: "couldn't get comment from DB",
+			Post: postdetails,
 		}, errors.New("could not get comments from DB")
 	}
 	return &pb.ReportCommentResponse{
@@ -385,13 +419,18 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 // post
 func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.EditPostResponse, error) {
 
-	log.Println("EditPost started")
-	if req.Postid < 1 {
-		return &pb.EditPostResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid post ID",
-		}, errors.New("invalid post ID")
+	var postdetails *pb.Post
+	postdetails,err:=s.CheckPostId(req.Postid);
+	if err!=nil{
+		return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Invalid post id"}, errors.New("invalid post id")
 	}
+	// if req.Postid < 1 {
+	// 	return &pb.EditPostResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid post ID",
+	// 	}, errors.New("invalid post ID")
+	// }
+
 	if req.Accno != "" {
 		err := s.H.DB.Exec("UPDATE posts set account_no = ? where id = ?", req.Accno, req.Postid).Error
 		if err != nil {
@@ -414,6 +453,7 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 			return &pb.EditPostResponse{
 				Status:   http.StatusBadRequest,
 				Response: "Error Parsing time string",
+				Post: &pb.Post{},
 			}, err
 		}
 		err = s.H.DB.Exec("UPDATE posts set date = ? where id = ?", timestamp, req.Postid).Error
@@ -443,14 +483,14 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 			return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Could not Update text"}, err
 		}
 	}
-	if req.Amount > 1 {
+	if req.Amount > postdetails.Collected {
 		err := s.H.DB.Exec("UPDATE posts set amount = ? where id = ?", req.Amount, req.Postid).Error
 		if err != nil {
 			fmt.Println(err)
 			return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Could not Update Amount"}, err
 		}
 	}
-	var postdetails *pb.Post
+	
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", req.Postid).Scan(&postdetails).Error; err != nil {
 		return &pb.EditPostResponse{
 			Status:   http.StatusBadRequest,
@@ -468,20 +508,20 @@ func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.Lik
 	log.Println("LikePost started")
 	log.Println("Collected Data: ", req)
 
-	if req.Postid < 1 {
-		log.Println("Invalid Post ID")
-		return &pb.LikePostResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid post ID",
-		}, errors.New("invalid post ID")
-	}
-	if req.Userid < 1 {
-		log.Println("Invalid user ID")
-		return &pb.LikePostResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid user ID",
-		}, errors.New("invalid user ID")
-	}
+	// if req.Postid < 1 {
+	// 	log.Println("Invalid Post ID")
+	// 	return &pb.LikePostResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid post ID",
+	// 	}, errors.New("invalid post ID")
+	// }
+	// if req.Userid < 1 {
+	// 	log.Println("Invalid user ID")
+	// 	return &pb.LikePostResponse{
+	// 		Status:   http.StatusBadRequest,
+	// 		Response: "Invalid user ID",
+	// 	}, errors.New("invalid user ID")
+	// }
 	var count int
 	if err := s.H.DB.Raw(`SELECT COUNT(*)
 	FROM likes
@@ -507,7 +547,7 @@ func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.Lik
 				Response: "Failed to like post",
 			}, err
 		}
-		
+
 		log.Println("Adding into likes ")
 		err := s.H.DB.Exec("UPDATE posts set likes = likes + 1 where id = ?", req.Postid).Error
 		if err != nil {
@@ -547,7 +587,7 @@ func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.Lik
 	}
 
 	//notify
-	err = s.Notify(int(req.Userid), int(Post.UserId), int(Post.Id), "like")
+	err = s.Notify(int(Post.UserId), int(req.Userid), int(Post.Id), "like")
 	if err != nil {
 		return &pb.LikePostResponse{
 			Status:   http.StatusOK,
@@ -857,9 +897,6 @@ func (s *Server) ClearNotification(ctx context.Context, req *pb.ClearNotificatio
 	}, nil
 }
 
-
-
-
 // utils
 func (s *Server) Getpost(postId int) (*pb.Post, error) {
 	var postdetails *pb.Post
@@ -877,14 +914,7 @@ func (s *Server) GetComments(postId int) ([]*pb.Comment, error) {
 }
 func (s *Server) Notify(userId int, fromId int, postId int, notificationType string) error {
 	text := ""
-	if notificationType == "like" {
-		text = fmt.Sprintf("You have a new like from %d for post %d", userId, postId)
-	} else if notificationType == "comment" {
-		text = fmt.Sprintf("You have a new comment from %d for post %d", userId, postId)
-
-	} else if notificationType == "donation" {
-		text = fmt.Sprintf("You got a new donation from %d for post %d", userId, postId)
-	}
+	text = fmt.Sprintf("You have a new %s from %d for post %d", notificationType, userId, postId)
 	query := `
     INSERT INTO notifications (user_id,from_id, post_id,time, text, type)
     VALUES (?, ?, ?, ?, ?,?)
@@ -899,8 +929,18 @@ func (s *Server) CheckUserId(userId int32) (*pb.User, error) {
 		log.Println(result.Error)
 		return nil, errors.New("user not found")
 	}
-	return &user,nil
+	return &user, nil
 }
+func (s *Server) CheckPostId(postId int32) (*pb.Post, error) {
+	var post pb.Post
+
+	if result := s.H.DB.Where(&pb.Post{Id: int32(postId)}).First(&post); result.Error != nil {
+		log.Println(result.Error)
+		return nil, errors.New("user not found")
+	}
+	return &post, nil
+}
+
 // func (s *Server) VerifyPayment(paymentID string, razorID string, orderID string) error {
 
 // 	err := p.paymentRepository.UpdatePaymentDetails(orderID, paymentID, razorID)
