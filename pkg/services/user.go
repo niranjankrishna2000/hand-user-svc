@@ -374,7 +374,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	// 	}, errors.New("no text found")
 	// }
 
-	var postId int
+	postId:=0
 	query := `
     INSERT INTO reporteds(reason,user_id,comment_id,category)
     VALUES(?, ?, ?, 'comment')
