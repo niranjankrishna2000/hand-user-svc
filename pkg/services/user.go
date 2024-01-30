@@ -389,7 +389,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 		}, errors.New("failed to insert report")
 	}
 	log.Println("Fetching post id")
-	if err := s.H.DB.Raw("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil || postId == 0 {
+	if err := s.H.DB.Exec("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil || postId == 0 {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get postid from DB",
@@ -398,14 +398,14 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	}
 	var postdetails *pb.PostDetails
 
-	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", postId).Scan(&postdetails.Post).Error; err != nil {
+	if err := s.H.DB.Exec("SELECT * FROM posts where id=?", postId).Scan(&postdetails.Post).Error; err != nil {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get post from DB",
 		}, errors.New("could not get post from DB")
 	}
 
-	if err := s.H.DB.Raw("SELECT * FROM comments where post_id=?", postId).Scan(&postdetails.Comments).Error; err != nil {
+	if err := s.H.DB.Exec("SELECT * FROM comments where post_id=?", postId).Scan(&postdetails.Comments).Error; err != nil {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get comment from DB",
