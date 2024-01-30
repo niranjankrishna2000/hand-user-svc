@@ -260,16 +260,16 @@ func (s *Server) MakePaymentRazorPay(ctx context.Context, req *pb.MakePaymentRaz
 		fmt.Println(err)
 		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "could not update payment details" + err.Error()}, errors.New("payment comeplete. error when updating payments")
 	}
-	post,err:=s.CheckPostId(int32(paymentdetail.PostID))
+	post, err := s.CheckPostId(int32(paymentdetail.PostID))
 	if err != nil {
 		fmt.Println(err)
-		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "notification error: "+err.Error()}, errors.New("could not send notification")
+		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "notification error: " + err.Error()}, errors.New("could not send notification")
 
 	}
 	err = s.Notify(int(post.UserId), paymentdetail.UserID, paymentdetail.PostID, "donation")
 	if err != nil {
 		fmt.Println(err)
-		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "notification error: "+err.Error()}, errors.New("could not send notification")
+		return &pb.MakePaymentRazorPayResponse{Status: http.StatusBadGateway, Response: "notification error: " + err.Error()}, errors.New("could not send notification")
 
 	}
 	return &postDetails, nil
@@ -282,13 +282,13 @@ func (s *Server) GenerateInvoice(ctx context.Context, req *pb.GenerateInvoiceReq
 	if err := s.H.DB.Raw("SELECT * FROM payments WHERE payment_id=? AND status = 'completed'", req.InvoiceId).Scan(&paymentdetail).Error; err != nil {
 		return &pb.GenerateInvoiceResponse{
 			Status:   http.StatusBadRequest,
-			Response: "Payment Data Not Available:"+err.Error(),
+			Response: "Payment Data Not Available:" + err.Error(),
 		}, errors.New("payment data not found")
 	}
 	if err := s.H.DB.Raw("SELECT CONCAT(account_no, ' ', address) FROM posts WHERE id=?", paymentdetail.PostID).Scan(&address).Error; err != nil {
 		return &pb.GenerateInvoiceResponse{
 			Status:   http.StatusBadRequest,
-			Response: "Payment address Data Not Available:"+err.Error(),
+			Response: "Payment address Data Not Available:" + err.Error(),
 		}, errors.New("payment address Data Not Available")
 	}
 
@@ -340,8 +340,8 @@ func (s *Server) ReportPost(ctx context.Context, req *pb.ReportPostRequest) (*pb
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", postId).Scan(&postdetails).Error; err != nil {
 		return &pb.ReportPostResponse{
 			Status:   http.StatusBadRequest,
-			Response: "couldn't get posts from DB: "+err.Error(),
-			Post: &pb.Post{},
+			Response: "couldn't get posts from DB: " + err.Error(),
+			Post:     &pb.Post{},
 		}, errors.New("couldn't get post")
 	}
 	return &pb.ReportPostResponse{
@@ -373,26 +373,27 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	// 		Response: "no text found",
 	// 	}, errors.New("no text found")
 	// }
+
 	var postId int
 	query := `
-    INSERT INTO reporteds (reason,user_id,comment_id,category)
-    VALUES (?, ?, ?, 'comment')
+    INSERT INTO reporteds(reason,user_id,comment_id,category)
+    VALUES(?, ?, ?, 'comment')
 	`
 	log.Println("inserting into reportlist")
 	if err := s.H.DB.Raw(query, req.Text, req.Userid, req.Commentid).Error; err != nil {
 		log.Printf("Failed to insert report: %v", err)
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusInternalServerError,
-			Response: "Failed to insert report:"+err.Error(),
-			Post: &pb.PostDetails{},
+			Response: "Failed to insert report:" + err.Error(),
+			Post:     &pb.PostDetails{},
 		}, errors.New("failed to insert report")
 	}
 	log.Println("Fetching post")
-	if err := s.H.DB.Raw("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil || postId == 0 {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get postid from DB",
-			Post: &pb.PostDetails{},
+			Post:     &pb.PostDetails{},
 		}, errors.New("could not get postid from DB")
 	}
 	var postdetails *pb.PostDetails
@@ -408,7 +409,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get comment from DB",
-			Post: postdetails,
+			Post:     postdetails,
 		}, errors.New("could not get comments from DB")
 	}
 	return &pb.ReportCommentResponse{
@@ -422,8 +423,8 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.EditPostResponse, error) {
 
 	var postdetails *pb.Post
-	postdetails,err:=s.CheckPostId(req.Postid);
-	if err!=nil{
+	postdetails, err := s.CheckPostId(req.Postid)
+	if err != nil {
 		return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Invalid post id"}, errors.New("invalid post id")
 	}
 	// if req.Postid < 1 {
@@ -455,7 +456,7 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 			return &pb.EditPostResponse{
 				Status:   http.StatusBadRequest,
 				Response: "Error Parsing time string",
-				Post: &pb.Post{},
+				Post:     &pb.Post{},
 			}, err
 		}
 		err = s.H.DB.Exec("UPDATE posts set date = ? where id = ?", timestamp, req.Postid).Error
@@ -492,7 +493,7 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 			return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Could not Update Amount"}, err
 		}
 	}
-	
+
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", req.Postid).Scan(&postdetails).Error; err != nil {
 		return &pb.EditPostResponse{
 			Status:   http.StatusBadRequest,
