@@ -376,9 +376,9 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	var postId int
 	query := `
     INSERT INTO reporteds (reason,user_id,comment_id,category)
-    VALUES (?, ?, ?, ?)
+    VALUES (?, ?, ?, 'comment')
 	`
-	if err := s.H.DB.Raw(query, req.Text, req.Userid, req.Commentid, "COMMENT").Error; err != nil {
+	if err := s.H.DB.Raw(query, req.Text, req.Userid, req.Commentid).Error; err != nil {
 		log.Printf("Failed to insert report: %v", err)
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusInternalServerError,
