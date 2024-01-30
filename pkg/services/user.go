@@ -380,7 +380,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
     VALUES(?, ?, ?, 'comment')
 	`
 	log.Println("inserting into reportlist")
-	if err := s.H.DB.Raw(query, req.Text, req.Userid, req.Commentid).Error; err != nil {
+	if err := s.H.DB.Exec(query, req.Text, req.Userid, req.Commentid).Error; err != nil {
 		log.Printf("Failed to insert report: %v", err)
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusInternalServerError,
@@ -388,7 +388,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 			Post:     &pb.PostDetails{},
 		}, errors.New("failed to insert report")
 	}
-	log.Println("Fetching post")
+	log.Println("Fetching post id")
 	if err := s.H.DB.Raw("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil || postId == 0 {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
