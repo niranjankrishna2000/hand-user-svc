@@ -20,12 +20,13 @@ func Init(url string) Handler {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Post{})
 	db.AutoMigrate(&models.Payment{})
 	db.AutoMigrate(&models.Reported{})
 	db.AutoMigrate(&models.Comment{})
 	db.AutoMigrate(&models.Notification{})
+	db.AutoMigrate(&models.MonthlyGoal{})
 
 	return Handler{db}
 }

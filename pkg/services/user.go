@@ -115,7 +115,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 	if err := s.H.DB.Raw(sqlQuery, limit, offset).Scan(&postdetails).Error; err != nil {
 		return &pb.UserFeedsResponse{
 			Status:         http.StatusBadRequest,
-			Response:       "couldn't get posts from DB",
+			Response:       "couldn't get posts from DB.",
 			Posts:          []*pb.Post{},
 			Successstories: []*pb.SuccesStory{},
 			Categories:     []*pb.Category{},
@@ -125,30 +125,31 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 	sqlQuery = "SELECT * FROM categories"
 	if err := s.H.DB.Raw(sqlQuery).Scan(&categoryList).Error; err != nil {
 		return &pb.UserFeedsResponse{
-			Status:     http.StatusBadGateway,
-			Response:   "error from db: " + err.Error(),
+			Status:         http.StatusBadGateway,
+			Response:       "error from db: " + err.Error(),
 			Posts:          postdetails,
 			Successstories: []*pb.SuccesStory{},
-			Categories: []*pb.Category{},
+			Categories:     []*pb.Category{},
 		}, errors.New("couldnt fetch categories")
 	}
 	var storyList []*pb.SuccesStory
 	sqlQuery = "SELECT * FROM stories ORDER BY date DESC LIMIT ? OFFSET ?"
-	if err := s.H.DB.Raw(sqlQuery,limit/2,offset).Scan(&storyList).Error; err != nil {
+	if err := s.H.DB.Raw(sqlQuery, limit/2, offset).Scan(&storyList).Error; err != nil {
 		return &pb.UserFeedsResponse{
-			Status:     http.StatusBadGateway,
-			Response:   "error from db: " + err.Error(),
+			Status:         http.StatusBadGateway,
+			Response:       "error from db: " + err.Error(),
 			Posts:          postdetails,
 			Successstories: []*pb.SuccesStory{},
-			Categories: categoryList,
+			Categories:     categoryList,
 		}, errors.New("couldnt fetch stories")
 	}
 	log.Println("feeds:", postdetails)
+	link:=s.CheckAutoPay(req.Userid)
 	return &pb.UserFeedsResponse{
-		Status:   http.StatusOK,
-		Response: "got all records",
-		Posts:    postdetails,
-		Categories: categoryList,
+		Status:         http.StatusOK,
+		Response:       "got all records"+link,
+		Posts:          postdetails,
+		Categories:     categoryList,
 		Successstories: storyList,
 	}, nil
 
@@ -424,6 +425,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 		Post:     postdetails,
 	}, nil
 }
+
 // post
 func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.EditPostResponse, error) {
 
@@ -433,7 +435,7 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 		return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Invalid post id"}, errors.New("invalid post id")
 	}
 
-	if !s.CheckIfOwner(req.Userid,req.Postid){
+	if !s.CheckIfOwner(req.Userid, req.Postid) {
 		return &pb.EditPostResponse{Status: http.StatusUnauthorized, Response: "Unauthorized"}, errors.New("Unauthorized")
 	}
 	if req.Accno != "" {
@@ -723,6 +725,7 @@ func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest
 		Post:     &pb.PostDetails{Post: Post, Comments: Comments},
 	}, nil
 }
+
 ////////////////////////////////Test till here////////////////////////////////////////////////////////////////////////
 
 // donation
@@ -899,6 +902,122 @@ func (s *Server) ClearNotification(ctx context.Context, req *pb.ClearNotificatio
 	}, nil
 }
 
+func (s *Server) ProfileDetails(ctx context.Context, req *pb.ProfileDetailsRequest) (*pb.ProfileDetailsResponse, error) {
+	log.Println("ProfileDetails Service Starting...",req)
+	return &pb.ProfileDetailsResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+		User: &pb.UserProfile{},
+	}, nil
+}
+func (s *Server) EditProfile(ctx context.Context, req *pb.UserProfile) (*pb.EditProfileResponse, error) {
+	log.Println("EditProfile Service Starting...",req)
+	return &pb.EditProfileResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil}
+//updates
+func (s *Server) GetUpdates(ctx context.Context, req *pb.GetUpdatesRequest) (*pb.GetUpdatesResponse, error) {
+	log.Println("GetUpdates Service Starting...",req)
+	return &pb.GetUpdatesResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) AddUpdate(ctx context.Context, req *pb.AddUpdatesRequest) (*pb.AddUpdatesResponse, error) {
+	log.Println("AddUpdate Service Starting...",req)
+	return &pb.AddUpdatesResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) EditUpdate(ctx context.Context, req *pb.EditUpdatesRequest) (*pb.EditUpdatesResponse, error) {
+	log.Println("EditUpdate Service Starting...",req)
+	return &pb.EditUpdatesResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) DeleteUpdate(ctx context.Context, req *pb.DeleteUpdatesRequest) (*pb.DeleteUpdatesResponse, error) {
+	log.Println("DeleteUpdate Service Starting...",req)
+	return &pb.DeleteUpdatesResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+//monthly goals
+func (s *Server) GetMonthlyGoal(ctx context.Context, req *pb.GetMonthlyGoalRequest) (*pb.GetMonthlyGoalResponse, error) {
+	log.Println("GetMonthlyGoal Service Starting...",req)
+	return &pb.GetMonthlyGoalResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) AddMonthlyGoal(ctx context.Context, req *pb.AddMonthlyGoalRequest) (*pb.AddMonthlyGoalResponse, error) {
+	log.Println("AddMonthlyGoal Service Starting...",req)
+	return &pb.AddMonthlyGoalResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) EditMonthlyGoal(ctx context.Context, req *pb.EditMonthlyGoalRequest) (*pb.EditMonthlyGoalResponse, error) {
+	log.Println("EditMonthlyGoal Service Starting...",req)
+	return &pb.EditMonthlyGoalResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+//My impact
+func (s *Server) GetmyImpact(ctx context.Context, req *pb.GetmyImpactRequest) (*pb.GetmyImpactResponse, error) {
+	log.Println("GetmyImpact Service Starting...",req)
+	return &pb.GetmyImpactResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) GetMyCampaigns(ctx context.Context, req *pb.GetMyCampaignsRequest) (*pb.GetMyCampaignsResponse, error) {
+	log.Println("GetMyCampaigns Service Starting...",req)
+	return &pb.GetMyCampaignsResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+//success story
+func (s *Server) GetSuccessStory(ctx context.Context, req *pb.GetSuccessStoryRequest) (*pb.GetSuccessStoryResponse, error) {
+	log.Println("GetSuccessStory Service Starting...",req)
+	return &pb.GetSuccessStoryResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) AddSuccessStory(ctx context.Context, req *pb.AddSuccessStoryRequest) (*pb.AddSuccessStoryResponse, error) {
+	log.Println("AddSuccessStory Service Starting...",req)
+	return &pb.AddSuccessStoryResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) EditSuccessStory(ctx context.Context, req *pb.EditSuccessStoryRequest) (*pb.EditSuccessStoryResponse, error) {
+	log.Println("EditSuccessStory Service Starting...",req)
+	return &pb.EditSuccessStoryResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+func (s *Server) DeleteSuccessStory(ctx context.Context, req *pb.DeleteSuccessStoryRequest) (*pb.DeleteSuccessStoryResponse, error) {
+	log.Println("DeleteSuccessStory Service Starting...",req)
+	return &pb.DeleteSuccessStoryResponse{
+		Status:   http.StatusOK,
+		Response: "Successfully cleared the notifications",
+	}, nil
+}
+
+
+
+
+
+
+
 // utils
 func (s *Server) Getpost(postId int) (*pb.Post, error) {
 	var postdetails *pb.Post
@@ -942,16 +1061,43 @@ func (s *Server) CheckPostId(postId int32) (*pb.Post, error) {
 	}
 	return &post, nil
 }
-func (s *Server) CheckIfOwner(userId ,postId int32) (bool) {
+func (s *Server) CheckIfOwner(userId, postId int32) bool {
 	var post pb.Post
-    if result := s.H.DB.Where("id = ? AND user_id = ?", postId, userId).First(&post); result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return false
-        }
-        log.Println(result.Error)
-        return false
-    }
-    return true 
+	if result := s.H.DB.Where("id = ? AND user_id = ?", postId, userId).First(&post); result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return false
+		}
+		log.Println(result.Error)
+		return false
+	}
+	return true
 }
+
+func (s *Server) CheckAutoPay(userId int32) string {
+	var monthlyGoal models.MonthlyGoal
+	if err := s.H.DB.Raw("SELECT * FROM monthlygoals WHERE user_id=?", userId).Scan(&monthlyGoal).Error; err != nil {
+		return ""
+	}
+	if monthlyGoal.Day<time.Now().Day(){
+		return ""
+	}
+	var post pb.Post
+	if err := s.H.DB.Raw("SELECT * FROM posts WHERE cat_id=? AND status = 'approved' AND amount - collected < ?)", monthlyGoal.Category,monthlyGoal.Amount).Scan(&post).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println(err.Error())
+			return ""
+		}
+	}
+	var payID int32
+	query := `
+    INSERT INTO payments (user_id, post_id,amount, date,status)
+    VALUES (?, ?, ?, ?,?) RETURNING id
+	`
+	s.H.DB.Raw(query, userId, post.Id, monthlyGoal.Amount, time.Now(), "pending").Scan(&payID)
+
+	link := fmt.Sprintf("https://handcrowdfunding.online/user/post/donate/razorpay?payid=%d", payID)
+	return "Pay This Month Donation Today :"+link
+}
+
 // func (s *Server) GetUpdates() {}
 // func (s *Server) GetStories() {}

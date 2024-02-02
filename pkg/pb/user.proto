@@ -50,6 +50,7 @@ service UserService {
     string searchkey = 3;
     int32 category =4;
     int32 type=5;
+    int32 userid=6;
   }
   
   message UserFeedsResponse {
@@ -405,7 +406,6 @@ service UserService {
     string Address=8;
     string PAN=9;
     string ProfilePicture=11;
-    bool Anonymous=10;
   }
   
   
@@ -483,28 +483,28 @@ service UserService {
   
   message AddMonthlyGoalRequest {
     int32 userid = 1;
-    string category=2;//note or int 
+    int32 category=2;//note or int 
     int64 amount =3;
     int32 day =4;
   }
   message AddMonthlyGoalResponse {
     int64 status = 1;
     string response = 2;
-    string category=5;
+    int32 category=5;
     int64 amount =3;
     int32 day =4;
   }
   
   message EditMonthlyGoalRequest {
     int32 userid = 1;
-    string category=2;//note or int 
+    int32 category=2;//note or int 
     int64 amount =3;
     int32 day =4;
   }
   message EditMonthlyGoalResponse {
     int64 status = 1;
     string response = 2;
-    string category=5;
+    int32 category=5;
     int64 amount =3;
     int32 day =4;
   }
