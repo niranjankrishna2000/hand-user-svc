@@ -125,7 +125,7 @@ service UserService {
     Post post = 3;
   }
   message Category {
-    int32 categoryid=1;
+    int32 id=1;
     string category=2;
   }
   message GetCreatePostRequest{}

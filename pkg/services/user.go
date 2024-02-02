@@ -40,7 +40,7 @@ func (s *Server) GetCreatePost(ctx context.Context, req *pb.GetCreatePostRequest
 		Categories: categoryList,
 	}, nil
 
-} //ok
+} //testedok
 
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
 
@@ -112,7 +112,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 		sqlQuery += " AND status = 'approved' AND date >= CURRENT_DATE - INTERVAL '30 days'"
 	}
 	sqlQuery += " ORDER BY likes DESC, views DESC,date DESC, amount DESC, cat_id DESC LIMIT ? OFFSET ?"
-	if err := s.H.DB.Raw(sqlQuery, limit, offset, req.Category).Scan(&postdetails).Error; err != nil {
+	if err := s.H.DB.Raw(sqlQuery, limit, offset).Scan(&postdetails).Error; err != nil {
 		return &pb.UserFeedsResponse{
 			Status:         http.StatusBadRequest,
 			Response:       "couldn't get posts from DB",
@@ -151,7 +151,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 		Categories: categoryList,
 		Successstories: storyList,
 	}, nil
-		
+
 } //note: add collection of success stories, categories
 
 func (s *Server) UserPostDetails(ctx context.Context, req *pb.UserPostDetailsRequest) (*pb.UserPostDetailsResponse, error) {
