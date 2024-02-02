@@ -27,6 +27,8 @@ func Init(url string) Handler {
 	db.AutoMigrate(&models.Comment{})
 	db.AutoMigrate(&models.Notification{})
 	db.AutoMigrate(&models.MonthlyGoal{})
+	db.AutoMigrate(&models.Story{})
+	db.AutoMigrate(&models.Update{})
 
 	return Handler{db}
 }

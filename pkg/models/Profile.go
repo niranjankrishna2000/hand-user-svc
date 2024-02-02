@@ -15,7 +15,7 @@ type User struct {
 	Status         string    `json:"status" gorm:"not null"`
 	Id             int32     `json:"id"`
 	Gender         string    `json:"gender"`
-	DoB            time.Time `json:"dob"`
+	Dob            time.Time `json:"dob"`
 	Address        string    `json:"address"`
 	PAN            string    `json:"pan"`
 	ProfilePicture string    `json:"profilepic"`

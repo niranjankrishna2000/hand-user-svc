@@ -48,3 +48,21 @@ type Notification struct {
 	Text   string    `json:"text" gorm:"not null"`
 	Type   string    `json:"type"`
 }
+
+type Story struct {
+	Id      int32     `json:"id" gorm:"unique;notnull"`
+	Title   string    `json:"title"`
+	Text    string    `json:"text"`
+	Place   string    `json:"place"`
+	Image   string    `json:"image"`
+	Date    time.Time `json:"date"`
+	User_id int32     `json:"userid"`
+}
+
+type Update struct {
+	Id     int32     `json:"id" gorm:"unique;notnull"`
+	Title  string    `json:"title"`
+	Text   string    `json:"text"`
+	Date   time.Time `json:"date"`
+	Postid int32     `json:"postid"`
+}

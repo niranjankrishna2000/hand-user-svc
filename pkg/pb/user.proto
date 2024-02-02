@@ -233,8 +233,6 @@ service UserService {
     string image = 5;
     string date = 6;
     int32 user_id = 7;
-    int32 likes =8;
-    repeated Comment comments=9;
   }
   message Update {
     int32 id=1;
