@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 	"user_svc/pkg/db"
 	"user_svc/pkg/models"
@@ -22,13 +23,13 @@ type Server struct {
 
 func (s *Server) GetCreatePost(ctx context.Context, req *pb.GetCreatePostRequest) (*pb.GetCreatePostResponse, error) {
 
-	log.Println("Category Request List started")
+	log.Println("Category Request List started: ", req)
 	var categoryList []*pb.Category
 	sqlQuery := "SELECT * FROM categories"
 	if err := s.H.DB.Raw(sqlQuery).Scan(&categoryList).Error; err != nil {
 		return &pb.GetCreatePostResponse{
 			Status:     http.StatusBadGateway,
-			Response:   "error when fetching from db: " + err.Error(),
+			Response:   "error from db: " + err.Error(),
 			Categories: []*pb.Category{},
 		}, errors.New("couldnt fetch categories")
 	}
@@ -39,10 +40,11 @@ func (s *Server) GetCreatePost(ctx context.Context, req *pb.GetCreatePostRequest
 		Categories: categoryList,
 	}, nil
 
-}
+} //ok
+
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
 
-	log.Println("Post creation started")
+	log.Println("Post creation started: ", req)
 	var PostID int32
 	layout := "2006-01-02 15:04:05"
 	timestamp, err := time.Parse(layout, req.Date)
@@ -55,10 +57,10 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 		}, errors.New("invalid date format")
 	}
 	query := `
-    INSERT INTO posts (text, place,image, date, amount,user_id,account_no,address,cat_id)
-    VALUES (?, ?, ?, ?, ?,?,?,?,?) RETURNING id
+    INSERT INTO posts (text, place,image, date, amount,user_id,account_no,address,cat_id,tax_benefit)
+    VALUES (?, ?, ?, ?, ?,?,?,?,?,?) RETURNING id
 	`
-	s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address, req.Categoryid).Scan(&PostID)
+	s.H.DB.Raw(query, req.Text, req.Place, req.Image, timestamp, req.Amount, req.Userid, req.Accno, req.Address, req.Categoryid, req.Taxbenefit).Scan(&PostID)
 	var postdetails *pb.Post
 
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", PostID).Scan(&postdetails).Error; err != nil {
@@ -80,8 +82,8 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 
 func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.UserFeedsResponse, error) {
 
-	log.Println("Feeds collection started")
-	log.Println("Data collected", req)
+	log.Println("Feeds collection started: ", req)
+	// note: check for autopay, try implementing goroutine if exists return link in response.
 	var page, limit int64
 	page, limit = int64(req.Page), int64(req.Limit)
 	// pagination purpose -
@@ -93,28 +95,64 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 	}
 	offset := (page - 1) * limit
 	var postdetails []*pb.Post
-
-	sqlQuery := "SELECT * FROM posts WHERE status = 'approved'"
+	//select category
+	//select type |trending(sort by views and likes)|expired|taxbenefit|
+	sqlQuery := "SELECT * FROM posts where id > 0"
 	if req.Searchkey != "" {
-		sqlQuery += " AND (text ILIKE '%" + req.Searchkey + "%' OR place ILIKE '%" + req.Searchkey + "%')"
+		sqlQuery += " AND (text ILIKE '%" + req.Searchkey + "%' OR place ILIKE '%" + req.Searchkey + "%' OR title ILIKE '%" + req.Searchkey + "%')"
 	}
-	sqlQuery += " ORDER BY date DESC, amount DESC, cat_id DESC LIMIT ? OFFSET ?"
-
-	if err := s.H.DB.Raw(sqlQuery, limit, offset).Scan(&postdetails).Error; err != nil {
+	if req.Category != 0 {
+		sqlQuery += " AND category_id = " + strconv.Itoa(int(req.Category))
+	}
+	if req.Type == 2 {
+		sqlQuery += " AND status = 'expired'"
+	} else if req.Type == 3 {
+		sqlQuery += " AND tax_benefit = true"
+	} else {
+		sqlQuery += " AND status = 'approved' AND date >= CURRENT_DATE - INTERVAL '30 days'"
+	}
+	sqlQuery += " ORDER BY likes DESC, views DESC,date DESC, amount DESC, cat_id DESC LIMIT ? OFFSET ?"
+	if err := s.H.DB.Raw(sqlQuery, limit, offset, req.Category).Scan(&postdetails).Error; err != nil {
 		return &pb.UserFeedsResponse{
-			Status:   http.StatusBadRequest,
-			Response: "couldn't get posts from DB",
-			Posts:    []*pb.Post{},
+			Status:         http.StatusBadRequest,
+			Response:       "couldn't get posts from DB",
+			Posts:          []*pb.Post{},
+			Successstories: []*pb.SuccesStory{},
+			Categories:     []*pb.Category{},
 		}, errors.New("could not fetch posts")
+	}
+	var categoryList []*pb.Category
+	sqlQuery = "SELECT * FROM categories"
+	if err := s.H.DB.Raw(sqlQuery).Scan(&categoryList).Error; err != nil {
+		return &pb.UserFeedsResponse{
+			Status:     http.StatusBadGateway,
+			Response:   "error from db: " + err.Error(),
+			Posts:          postdetails,
+			Successstories: []*pb.SuccesStory{},
+			Categories: []*pb.Category{},
+		}, errors.New("couldnt fetch categories")
+	}
+	var storyList []*pb.SuccesStory
+	sqlQuery = "SELECT * FROM stories ORDER BY date DESC LIMIT ? OFFSET ?"
+	if err := s.H.DB.Raw(sqlQuery,limit/2,offset).Scan(&storyList).Error; err != nil {
+		return &pb.UserFeedsResponse{
+			Status:     http.StatusBadGateway,
+			Response:   "error from db: " + err.Error(),
+			Posts:          postdetails,
+			Successstories: []*pb.SuccesStory{},
+			Categories: categoryList,
+		}, errors.New("couldnt fetch stories")
 	}
 	log.Println("feeds:", postdetails)
 	return &pb.UserFeedsResponse{
 		Status:   http.StatusOK,
 		Response: "got all records",
 		Posts:    postdetails,
+		Categories: categoryList,
+		Successstories: storyList,
 	}, nil
-
-}
+		
+} //note: add collection of success stories, categories
 
 func (s *Server) UserPostDetails(ctx context.Context, req *pb.UserPostDetailsRequest) (*pb.UserPostDetailsResponse, error) {
 
@@ -144,6 +182,8 @@ func (s *Server) UserPostDetails(ctx context.Context, req *pb.UserPostDetailsReq
 		fmt.Println(err)
 		return &pb.UserPostDetailsResponse{Status: http.StatusBadGateway, Response: "Could not Update views"}, err
 	}
+	//note add get updates
+	//note add get donations
 	return &pb.UserPostDetailsResponse{
 		Status:   http.StatusOK,
 		Response: "Successfully got the post",
@@ -308,26 +348,11 @@ func (s *Server) GenerateInvoice(ctx context.Context, req *pb.GenerateInvoiceReq
 func (s *Server) ReportPost(ctx context.Context, req *pb.ReportPostRequest) (*pb.ReportPostResponse, error) {
 	log.Println("ReportPost started")
 	log.Println("Collected Data: ", req)
+	_, err := s.CheckPostId(req.Postid)
+	if err != nil {
+		return &pb.ReportPostResponse{Status: http.StatusBadGateway, Response: "Invalid post id"}, errors.New("invalid post id")
+	}
 
-	// if req.Postid < 1 {
-	// 	log.Println("Invalid Post ID")
-	// 	return &pb.ReportPostResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "Invalid Post ID",
-	// 	}, errors.New("invalid Post ID")
-	// }
-	// if req.Userid < 1 {
-	// 	log.Println("Invalid user ID")
-	// 	return &pb.ReportPostResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "Invalid user ID",
-	// 	}, errors.New("invalid user ID")
-	// }
-	// if req.Text == "" {
-	// 	return &pb.ReportPostResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "no text found",
-	// 	}, errors.New("no text found")
 	// }
 	var postId int32
 	query := `
@@ -355,26 +380,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 	log.Println("ReportComment started")
 	log.Println("Collected Data: ", req)
 
-	// if req.Commentid < 1 {
-	// 	return &pb.ReportCommentResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "Invalid comment ID",
-	// 	}, errors.New("invalid comment ID")
-	// }
-	// if req.Userid < 1 {
-	// 	return &pb.ReportCommentResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "Invalid user ID",
-	// 	}, errors.New("invalid user ID")
-	// }
-	// if req.Text == "" {
-	// 	return &pb.ReportCommentResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "no text found",
-	// 	}, errors.New("no text found")
-	// }
-
-	postId:=0
+	postId := 0
 	query := `
     INSERT INTO reporteds(reason,user_id,comment_id,category)
     VALUES(?, ?, ?, 'comment')
@@ -389,7 +395,7 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 		}, errors.New("failed to insert report")
 	}
 	log.Println("Fetching post id")
-	if err := s.H.DB.Raw(`SELECT post_id FROM comments WHERE id = ?`, req.Commentid).Scan(&postId).Error; err != nil || postId == 0 {
+	if err := s.H.DB.Raw("SELECT post_id FROM comments where id=?", req.Commentid).Scan(&postId).Error; err != nil || postId == 0 {
 		return &pb.ReportCommentResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get postid from DB",
@@ -418,7 +424,6 @@ func (s *Server) ReportComment(ctx context.Context, req *pb.ReportCommentRequest
 		Post:     postdetails,
 	}, nil
 }
-
 // post
 func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.EditPostResponse, error) {
 
@@ -427,13 +432,10 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 	if err != nil {
 		return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Invalid post id"}, errors.New("invalid post id")
 	}
-	// if req.Postid < 1 {
-	// 	return &pb.EditPostResponse{
-	// 		Status:   http.StatusBadRequest,
-	// 		Response: "Invalid post ID",
-	// 	}, errors.New("invalid post ID")
-	// }
 
+	if !s.CheckIfOwner(req.Userid,req.Postid){
+		return &pb.EditPostResponse{Status: http.StatusUnauthorized, Response: "Unauthorized"}, errors.New("Unauthorized")
+	}
 	if req.Accno != "" {
 		err := s.H.DB.Exec("UPDATE posts set account_no = ? where id = ?", req.Accno, req.Postid).Error
 		if err != nil {
@@ -486,12 +488,21 @@ func (s *Server) EditPost(ctx context.Context, req *pb.EditPostRequest) (*pb.Edi
 			return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Could not Update text"}, err
 		}
 	}
-	if req.Amount > postdetails.Collected {
+	if req.Title != "" {
+		err := s.H.DB.Exec("UPDATE posts set title = ? where id = ?", req.Title, req.Postid).Error
+		if err != nil {
+			fmt.Println(err)
+			return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Could not Update title"}, err
+		}
+	}
+	if req.Amount >= postdetails.Collected {
 		err := s.H.DB.Exec("UPDATE posts set amount = ? where id = ?", req.Amount, req.Postid).Error
 		if err != nil {
 			fmt.Println(err)
 			return &pb.EditPostResponse{Status: http.StatusBadGateway, Response: "Could not Update Amount"}, err
 		}
+	} else {
+		return &pb.EditPostResponse{Status: http.StatusBadRequest, Response: "Amount should be more than collected"}, err
 	}
 
 	if err := s.H.DB.Raw("SELECT * FROM posts where id=?", req.Postid).Scan(&postdetails).Error; err != nil {
@@ -669,19 +680,6 @@ func (s *Server) CommentPost(ctx context.Context, req *pb.CommentPostRequest) (*
 func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest) (*pb.DeleteCommentResponse, error) {
 	log.Println("DeleteComment started")
 	log.Println("Collected Data: ", req)
-
-	if req.Commentid < 1 {
-		return &pb.DeleteCommentResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid comment ID",
-		}, errors.New("invalid comment ID")
-	}
-	if req.Userid < 1 {
-		return &pb.DeleteCommentResponse{
-			Status:   http.StatusBadRequest,
-			Response: "Invalid user ID",
-		}, errors.New("invalid user ID")
-	}
 	var count int
 	var postId int
 	if err := s.H.DB.Raw(`SELECT COUNT(*)
@@ -725,6 +723,7 @@ func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest
 		Post:     &pb.PostDetails{Post: Post, Comments: Comments},
 	}, nil
 }
+////////////////////////////////Test till here////////////////////////////////////////////////////////////////////////
 
 // donation
 func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryRequest) (*pb.DonationHistoryResponse, error) {
@@ -943,36 +942,16 @@ func (s *Server) CheckPostId(postId int32) (*pb.Post, error) {
 	}
 	return &post, nil
 }
-
-// func (s *Server) VerifyPayment(paymentID string, razorID string, orderID string) error {
-
-// 	err := p.paymentRepository.UpdatePaymentDetails(orderID, paymentID, razorID)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	//clearcart
-
-// 	orderIDint, err := strconv.Atoi(orderID)
-// 	//fmt.Println("====orderID", orderID)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	userID, err := p.userRepository.FindUserIDByOrderID(orderIDint)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	cartID, err := p.userRepository.GetCartID(userID)
-// 	//fmt.Println("CartID=======", cartID)
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	p.userRepository.ClearCart(cartID)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-
-// }
+func (s *Server) CheckIfOwner(userId ,postId int32) (bool) {
+	var post pb.Post
+    if result := s.H.DB.Where("id = ? AND user_id = ?", postId, userId).First(&post); result.Error != nil {
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            return false
+        }
+        log.Println(result.Error)
+        return false
+    }
+    return true 
+}
+// func (s *Server) GetUpdates() {}
+// func (s *Server) GetStories() {}

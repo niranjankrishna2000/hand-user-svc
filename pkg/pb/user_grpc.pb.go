@@ -22,6 +22,8 @@ const (
 	UserService_UserFeeds_FullMethodName           = "/user.UserService/UserFeeds"
 	UserService_CreatePost_FullMethodName          = "/user.UserService/CreatePost"
 	UserService_GetCreatePost_FullMethodName       = "/user.UserService/GetCreatePost"
+	UserService_ExpirePost_FullMethodName          = "/user.UserService/ExpirePost"
+	UserService_DeletePost_FullMethodName          = "/user.UserService/DeletePost"
 	UserService_UserPostDetails_FullMethodName     = "/user.UserService/UserPostDetails"
 	UserService_Donate_FullMethodName              = "/user.UserService/Donate"
 	UserService_MakePaymentRazorPay_FullMethodName = "/user.UserService/MakePaymentRazorPay"
@@ -37,21 +39,38 @@ const (
 	UserService_NotificationDetail_FullMethodName  = "/user.UserService/NotificationDetail"
 	UserService_DeleteNotification_FullMethodName  = "/user.UserService/DeleteNotification"
 	UserService_ClearNotification_FullMethodName   = "/user.UserService/ClearNotification"
+	UserService_GetUpdates_FullMethodName          = "/user.UserService/GetUpdates"
+	UserService_AddUpdates_FullMethodName          = "/user.UserService/AddUpdates"
+	UserService_EditUpdates_FullMethodName         = "/user.UserService/EditUpdates"
+	UserService_DeleteUpdates_FullMethodName       = "/user.UserService/DeleteUpdates"
+	UserService_EditProfile_FullMethodName         = "/user.UserService/EditProfile"
+	UserService_ProfileDetails_FullMethodName      = "/user.UserService/ProfileDetails"
+	UserService_GetmyImpact_FullMethodName         = "/user.UserService/GetmyImpact"
+	UserService_GetMyCampaigns_FullMethodName      = "/user.UserService/GetMyCampaigns"
+	UserService_GetSuccessStory_FullMethodName     = "/user.UserService/GetSuccessStory"
+	UserService_AddSuccessStory_FullMethodName     = "/user.UserService/AddSuccessStory"
+	UserService_EditSuccessStory_FullMethodName    = "/user.UserService/EditSuccessStory"
+	UserService_DeleteSuccessStory_FullMethodName  = "/user.UserService/DeleteSuccessStory"
+	UserService_GetMonthlyGoal_FullMethodName      = "/user.UserService/GetMonthlyGoal"
+	UserService_AddMonthlyGoal_FullMethodName      = "/user.UserService/AddMonthlyGoal"
+	UserService_EditMonthlyGoal_FullMethodName     = "/user.UserService/EditMonthlyGoal"
 )
 
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
+	// rpc (Request) returns (Response) {}
 	UserFeeds(ctx context.Context, in *UserFeedsRequest, opts ...grpc.CallOption) (*UserFeedsResponse, error)
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*CreatePostResponse, error)
 	GetCreatePost(ctx context.Context, in *GetCreatePostRequest, opts ...grpc.CallOption) (*GetCreatePostResponse, error)
+	ExpirePost(ctx context.Context, in *ExpirePostRequest, opts ...grpc.CallOption) (*ExpirePostResponse, error)
+	DeletePost(ctx context.Context, in *UserDeletePostRequest, opts ...grpc.CallOption) (*UserDeletePostResponse, error)
 	UserPostDetails(ctx context.Context, in *UserPostDetailsRequest, opts ...grpc.CallOption) (*UserPostDetailsResponse, error)
 	Donate(ctx context.Context, in *DonateRequest, opts ...grpc.CallOption) (*DonateResponse, error)
 	MakePaymentRazorPay(ctx context.Context, in *MakePaymentRazorPayRequest, opts ...grpc.CallOption) (*MakePaymentRazorPayResponse, error)
 	GenerateInvoice(ctx context.Context, in *GenerateInvoiceRequest, opts ...grpc.CallOption) (*GenerateInvoiceResponse, error)
 	ReportPost(ctx context.Context, in *ReportPostRequest, opts ...grpc.CallOption) (*ReportPostResponse, error)
-	// rpc (Request) returns (Response) {}
 	EditPost(ctx context.Context, in *EditPostRequest, opts ...grpc.CallOption) (*EditPostResponse, error)
 	LikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*LikePostResponse, error)
 	CommentPost(ctx context.Context, in *CommentPostRequest, opts ...grpc.CallOption) (*CommentPostResponse, error)
@@ -62,6 +81,21 @@ type UserServiceClient interface {
 	NotificationDetail(ctx context.Context, in *NotificationDetailsRequest, opts ...grpc.CallOption) (*NotificationDetailsResponse, error)
 	DeleteNotification(ctx context.Context, in *DeleteNotificationRequest, opts ...grpc.CallOption) (*DeleteNotificationResponse, error)
 	ClearNotification(ctx context.Context, in *ClearNotificationRequest, opts ...grpc.CallOption) (*ClearNotificationResponse, error)
+	GetUpdates(ctx context.Context, in *GetUpdatesRequest, opts ...grpc.CallOption) (*GetUpdatesResponse, error)
+	AddUpdates(ctx context.Context, in *AddUpdatesRequest, opts ...grpc.CallOption) (*AddUpdatesResponse, error)
+	EditUpdates(ctx context.Context, in *EditUpdatesRequest, opts ...grpc.CallOption) (*EditUpdatesResponse, error)
+	DeleteUpdates(ctx context.Context, in *DeleteUpdatesRequest, opts ...grpc.CallOption) (*DeleteUpdatesResponse, error)
+	EditProfile(ctx context.Context, in *UserProfile, opts ...grpc.CallOption) (*EditProfileResponse, error)
+	ProfileDetails(ctx context.Context, in *ProfileDetailsRequest, opts ...grpc.CallOption) (*ProfileDetailsResponse, error)
+	GetmyImpact(ctx context.Context, in *GetmyImpactRequest, opts ...grpc.CallOption) (*GetmyImpactResponse, error)
+	GetMyCampaigns(ctx context.Context, in *GetMyCampaignsRequest, opts ...grpc.CallOption) (*GetMyCampaignsResponse, error)
+	GetSuccessStory(ctx context.Context, in *GetSuccessStoryRequest, opts ...grpc.CallOption) (*GetSuccessStoryResponse, error)
+	AddSuccessStory(ctx context.Context, in *AddSuccessStoryRequest, opts ...grpc.CallOption) (*AddSuccessStoryResponse, error)
+	EditSuccessStory(ctx context.Context, in *EditSuccessStoryRequest, opts ...grpc.CallOption) (*EditSuccessStoryResponse, error)
+	DeleteSuccessStory(ctx context.Context, in *DeleteSuccessStoryRequest, opts ...grpc.CallOption) (*DeleteSuccessStoryResponse, error)
+	GetMonthlyGoal(ctx context.Context, in *GetMonthlyGoalRequest, opts ...grpc.CallOption) (*GetMonthlyGoalResponse, error)
+	AddMonthlyGoal(ctx context.Context, in *AddMonthlyGoalRequest, opts ...grpc.CallOption) (*AddMonthlyGoalResponse, error)
+	EditMonthlyGoal(ctx context.Context, in *EditMonthlyGoalRequest, opts ...grpc.CallOption) (*EditMonthlyGoalResponse, error)
 }
 
 type userServiceClient struct {
@@ -93,6 +127,24 @@ func (c *userServiceClient) CreatePost(ctx context.Context, in *CreatePostReques
 func (c *userServiceClient) GetCreatePost(ctx context.Context, in *GetCreatePostRequest, opts ...grpc.CallOption) (*GetCreatePostResponse, error) {
 	out := new(GetCreatePostResponse)
 	err := c.cc.Invoke(ctx, UserService_GetCreatePost_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) ExpirePost(ctx context.Context, in *ExpirePostRequest, opts ...grpc.CallOption) (*ExpirePostResponse, error) {
+	out := new(ExpirePostResponse)
+	err := c.cc.Invoke(ctx, UserService_ExpirePost_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeletePost(ctx context.Context, in *UserDeletePostRequest, opts ...grpc.CallOption) (*UserDeletePostResponse, error) {
+	out := new(UserDeletePostResponse)
+	err := c.cc.Invoke(ctx, UserService_DeletePost_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -234,19 +286,156 @@ func (c *userServiceClient) ClearNotification(ctx context.Context, in *ClearNoti
 	return out, nil
 }
 
+func (c *userServiceClient) GetUpdates(ctx context.Context, in *GetUpdatesRequest, opts ...grpc.CallOption) (*GetUpdatesResponse, error) {
+	out := new(GetUpdatesResponse)
+	err := c.cc.Invoke(ctx, UserService_GetUpdates_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) AddUpdates(ctx context.Context, in *AddUpdatesRequest, opts ...grpc.CallOption) (*AddUpdatesResponse, error) {
+	out := new(AddUpdatesResponse)
+	err := c.cc.Invoke(ctx, UserService_AddUpdates_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) EditUpdates(ctx context.Context, in *EditUpdatesRequest, opts ...grpc.CallOption) (*EditUpdatesResponse, error) {
+	out := new(EditUpdatesResponse)
+	err := c.cc.Invoke(ctx, UserService_EditUpdates_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeleteUpdates(ctx context.Context, in *DeleteUpdatesRequest, opts ...grpc.CallOption) (*DeleteUpdatesResponse, error) {
+	out := new(DeleteUpdatesResponse)
+	err := c.cc.Invoke(ctx, UserService_DeleteUpdates_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) EditProfile(ctx context.Context, in *UserProfile, opts ...grpc.CallOption) (*EditProfileResponse, error) {
+	out := new(EditProfileResponse)
+	err := c.cc.Invoke(ctx, UserService_EditProfile_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) ProfileDetails(ctx context.Context, in *ProfileDetailsRequest, opts ...grpc.CallOption) (*ProfileDetailsResponse, error) {
+	out := new(ProfileDetailsResponse)
+	err := c.cc.Invoke(ctx, UserService_ProfileDetails_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetmyImpact(ctx context.Context, in *GetmyImpactRequest, opts ...grpc.CallOption) (*GetmyImpactResponse, error) {
+	out := new(GetmyImpactResponse)
+	err := c.cc.Invoke(ctx, UserService_GetmyImpact_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetMyCampaigns(ctx context.Context, in *GetMyCampaignsRequest, opts ...grpc.CallOption) (*GetMyCampaignsResponse, error) {
+	out := new(GetMyCampaignsResponse)
+	err := c.cc.Invoke(ctx, UserService_GetMyCampaigns_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetSuccessStory(ctx context.Context, in *GetSuccessStoryRequest, opts ...grpc.CallOption) (*GetSuccessStoryResponse, error) {
+	out := new(GetSuccessStoryResponse)
+	err := c.cc.Invoke(ctx, UserService_GetSuccessStory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) AddSuccessStory(ctx context.Context, in *AddSuccessStoryRequest, opts ...grpc.CallOption) (*AddSuccessStoryResponse, error) {
+	out := new(AddSuccessStoryResponse)
+	err := c.cc.Invoke(ctx, UserService_AddSuccessStory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) EditSuccessStory(ctx context.Context, in *EditSuccessStoryRequest, opts ...grpc.CallOption) (*EditSuccessStoryResponse, error) {
+	out := new(EditSuccessStoryResponse)
+	err := c.cc.Invoke(ctx, UserService_EditSuccessStory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeleteSuccessStory(ctx context.Context, in *DeleteSuccessStoryRequest, opts ...grpc.CallOption) (*DeleteSuccessStoryResponse, error) {
+	out := new(DeleteSuccessStoryResponse)
+	err := c.cc.Invoke(ctx, UserService_DeleteSuccessStory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetMonthlyGoal(ctx context.Context, in *GetMonthlyGoalRequest, opts ...grpc.CallOption) (*GetMonthlyGoalResponse, error) {
+	out := new(GetMonthlyGoalResponse)
+	err := c.cc.Invoke(ctx, UserService_GetMonthlyGoal_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) AddMonthlyGoal(ctx context.Context, in *AddMonthlyGoalRequest, opts ...grpc.CallOption) (*AddMonthlyGoalResponse, error) {
+	out := new(AddMonthlyGoalResponse)
+	err := c.cc.Invoke(ctx, UserService_AddMonthlyGoal_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) EditMonthlyGoal(ctx context.Context, in *EditMonthlyGoalRequest, opts ...grpc.CallOption) (*EditMonthlyGoalResponse, error) {
+	out := new(EditMonthlyGoalResponse)
+	err := c.cc.Invoke(ctx, UserService_EditMonthlyGoal_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
+	// rpc (Request) returns (Response) {}
 	UserFeeds(context.Context, *UserFeedsRequest) (*UserFeedsResponse, error)
 	CreatePost(context.Context, *CreatePostRequest) (*CreatePostResponse, error)
 	GetCreatePost(context.Context, *GetCreatePostRequest) (*GetCreatePostResponse, error)
+	ExpirePost(context.Context, *ExpirePostRequest) (*ExpirePostResponse, error)
+	DeletePost(context.Context, *UserDeletePostRequest) (*UserDeletePostResponse, error)
 	UserPostDetails(context.Context, *UserPostDetailsRequest) (*UserPostDetailsResponse, error)
 	Donate(context.Context, *DonateRequest) (*DonateResponse, error)
 	MakePaymentRazorPay(context.Context, *MakePaymentRazorPayRequest) (*MakePaymentRazorPayResponse, error)
 	GenerateInvoice(context.Context, *GenerateInvoiceRequest) (*GenerateInvoiceResponse, error)
 	ReportPost(context.Context, *ReportPostRequest) (*ReportPostResponse, error)
-	// rpc (Request) returns (Response) {}
 	EditPost(context.Context, *EditPostRequest) (*EditPostResponse, error)
 	LikePost(context.Context, *LikePostRequest) (*LikePostResponse, error)
 	CommentPost(context.Context, *CommentPostRequest) (*CommentPostResponse, error)
@@ -257,6 +446,21 @@ type UserServiceServer interface {
 	NotificationDetail(context.Context, *NotificationDetailsRequest) (*NotificationDetailsResponse, error)
 	DeleteNotification(context.Context, *DeleteNotificationRequest) (*DeleteNotificationResponse, error)
 	ClearNotification(context.Context, *ClearNotificationRequest) (*ClearNotificationResponse, error)
+	GetUpdates(context.Context, *GetUpdatesRequest) (*GetUpdatesResponse, error)
+	AddUpdates(context.Context, *AddUpdatesRequest) (*AddUpdatesResponse, error)
+	EditUpdates(context.Context, *EditUpdatesRequest) (*EditUpdatesResponse, error)
+	DeleteUpdates(context.Context, *DeleteUpdatesRequest) (*DeleteUpdatesResponse, error)
+	EditProfile(context.Context, *UserProfile) (*EditProfileResponse, error)
+	ProfileDetails(context.Context, *ProfileDetailsRequest) (*ProfileDetailsResponse, error)
+	GetmyImpact(context.Context, *GetmyImpactRequest) (*GetmyImpactResponse, error)
+	GetMyCampaigns(context.Context, *GetMyCampaignsRequest) (*GetMyCampaignsResponse, error)
+	GetSuccessStory(context.Context, *GetSuccessStoryRequest) (*GetSuccessStoryResponse, error)
+	AddSuccessStory(context.Context, *AddSuccessStoryRequest) (*AddSuccessStoryResponse, error)
+	EditSuccessStory(context.Context, *EditSuccessStoryRequest) (*EditSuccessStoryResponse, error)
+	DeleteSuccessStory(context.Context, *DeleteSuccessStoryRequest) (*DeleteSuccessStoryResponse, error)
+	GetMonthlyGoal(context.Context, *GetMonthlyGoalRequest) (*GetMonthlyGoalResponse, error)
+	AddMonthlyGoal(context.Context, *AddMonthlyGoalRequest) (*AddMonthlyGoalResponse, error)
+	EditMonthlyGoal(context.Context, *EditMonthlyGoalRequest) (*EditMonthlyGoalResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -272,6 +476,12 @@ func (UnimplementedUserServiceServer) CreatePost(context.Context, *CreatePostReq
 }
 func (UnimplementedUserServiceServer) GetCreatePost(context.Context, *GetCreatePostRequest) (*GetCreatePostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCreatePost not implemented")
+}
+func (UnimplementedUserServiceServer) ExpirePost(context.Context, *ExpirePostRequest) (*ExpirePostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExpirePost not implemented")
+}
+func (UnimplementedUserServiceServer) DeletePost(context.Context, *UserDeletePostRequest) (*UserDeletePostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePost not implemented")
 }
 func (UnimplementedUserServiceServer) UserPostDetails(context.Context, *UserPostDetailsRequest) (*UserPostDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserPostDetails not implemented")
@@ -317,6 +527,51 @@ func (UnimplementedUserServiceServer) DeleteNotification(context.Context, *Delet
 }
 func (UnimplementedUserServiceServer) ClearNotification(context.Context, *ClearNotificationRequest) (*ClearNotificationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClearNotification not implemented")
+}
+func (UnimplementedUserServiceServer) GetUpdates(context.Context, *GetUpdatesRequest) (*GetUpdatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUpdates not implemented")
+}
+func (UnimplementedUserServiceServer) AddUpdates(context.Context, *AddUpdatesRequest) (*AddUpdatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddUpdates not implemented")
+}
+func (UnimplementedUserServiceServer) EditUpdates(context.Context, *EditUpdatesRequest) (*EditUpdatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditUpdates not implemented")
+}
+func (UnimplementedUserServiceServer) DeleteUpdates(context.Context, *DeleteUpdatesRequest) (*DeleteUpdatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUpdates not implemented")
+}
+func (UnimplementedUserServiceServer) EditProfile(context.Context, *UserProfile) (*EditProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditProfile not implemented")
+}
+func (UnimplementedUserServiceServer) ProfileDetails(context.Context, *ProfileDetailsRequest) (*ProfileDetailsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProfileDetails not implemented")
+}
+func (UnimplementedUserServiceServer) GetmyImpact(context.Context, *GetmyImpactRequest) (*GetmyImpactResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetmyImpact not implemented")
+}
+func (UnimplementedUserServiceServer) GetMyCampaigns(context.Context, *GetMyCampaignsRequest) (*GetMyCampaignsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyCampaigns not implemented")
+}
+func (UnimplementedUserServiceServer) GetSuccessStory(context.Context, *GetSuccessStoryRequest) (*GetSuccessStoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSuccessStory not implemented")
+}
+func (UnimplementedUserServiceServer) AddSuccessStory(context.Context, *AddSuccessStoryRequest) (*AddSuccessStoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddSuccessStory not implemented")
+}
+func (UnimplementedUserServiceServer) EditSuccessStory(context.Context, *EditSuccessStoryRequest) (*EditSuccessStoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditSuccessStory not implemented")
+}
+func (UnimplementedUserServiceServer) DeleteSuccessStory(context.Context, *DeleteSuccessStoryRequest) (*DeleteSuccessStoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSuccessStory not implemented")
+}
+func (UnimplementedUserServiceServer) GetMonthlyGoal(context.Context, *GetMonthlyGoalRequest) (*GetMonthlyGoalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMonthlyGoal not implemented")
+}
+func (UnimplementedUserServiceServer) AddMonthlyGoal(context.Context, *AddMonthlyGoalRequest) (*AddMonthlyGoalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMonthlyGoal not implemented")
+}
+func (UnimplementedUserServiceServer) EditMonthlyGoal(context.Context, *EditMonthlyGoalRequest) (*EditMonthlyGoalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditMonthlyGoal not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -381,6 +636,42 @@ func _UserService_GetCreatePost_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).GetCreatePost(ctx, req.(*GetCreatePostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_ExpirePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpirePostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ExpirePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ExpirePost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ExpirePost(ctx, req.(*ExpirePostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_DeletePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserDeletePostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeletePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_DeletePost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeletePost(ctx, req.(*UserDeletePostRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -655,6 +946,276 @@ func _UserService_ClearNotification_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUpdatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetUpdates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetUpdates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetUpdates(ctx, req.(*GetUpdatesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_AddUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddUpdatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AddUpdates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AddUpdates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AddUpdates(ctx, req.(*AddUpdatesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_EditUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditUpdatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).EditUpdates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_EditUpdates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).EditUpdates(ctx, req.(*EditUpdatesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_DeleteUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUpdatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeleteUpdates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_DeleteUpdates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeleteUpdates(ctx, req.(*DeleteUpdatesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_EditProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserProfile)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).EditProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_EditProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).EditProfile(ctx, req.(*UserProfile))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_ProfileDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProfileDetailsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ProfileDetails(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ProfileDetails_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ProfileDetails(ctx, req.(*ProfileDetailsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetmyImpact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetmyImpactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetmyImpact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetmyImpact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetmyImpact(ctx, req.(*GetmyImpactRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetMyCampaigns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyCampaignsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetMyCampaigns(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetMyCampaigns_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetMyCampaigns(ctx, req.(*GetMyCampaignsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetSuccessStory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSuccessStoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetSuccessStory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetSuccessStory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetSuccessStory(ctx, req.(*GetSuccessStoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_AddSuccessStory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddSuccessStoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AddSuccessStory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AddSuccessStory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AddSuccessStory(ctx, req.(*AddSuccessStoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_EditSuccessStory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditSuccessStoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).EditSuccessStory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_EditSuccessStory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).EditSuccessStory(ctx, req.(*EditSuccessStoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_DeleteSuccessStory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSuccessStoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeleteSuccessStory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_DeleteSuccessStory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeleteSuccessStory(ctx, req.(*DeleteSuccessStoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetMonthlyGoal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMonthlyGoalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetMonthlyGoal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetMonthlyGoal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetMonthlyGoal(ctx, req.(*GetMonthlyGoalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_AddMonthlyGoal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMonthlyGoalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AddMonthlyGoal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AddMonthlyGoal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AddMonthlyGoal(ctx, req.(*AddMonthlyGoalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_EditMonthlyGoal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditMonthlyGoalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).EditMonthlyGoal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_EditMonthlyGoal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).EditMonthlyGoal(ctx, req.(*EditMonthlyGoalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -673,6 +1234,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCreatePost",
 			Handler:    _UserService_GetCreatePost_Handler,
+		},
+		{
+			MethodName: "ExpirePost",
+			Handler:    _UserService_ExpirePost_Handler,
+		},
+		{
+			MethodName: "DeletePost",
+			Handler:    _UserService_DeletePost_Handler,
 		},
 		{
 			MethodName: "UserPostDetails",
@@ -733,6 +1302,66 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ClearNotification",
 			Handler:    _UserService_ClearNotification_Handler,
+		},
+		{
+			MethodName: "GetUpdates",
+			Handler:    _UserService_GetUpdates_Handler,
+		},
+		{
+			MethodName: "AddUpdates",
+			Handler:    _UserService_AddUpdates_Handler,
+		},
+		{
+			MethodName: "EditUpdates",
+			Handler:    _UserService_EditUpdates_Handler,
+		},
+		{
+			MethodName: "DeleteUpdates",
+			Handler:    _UserService_DeleteUpdates_Handler,
+		},
+		{
+			MethodName: "EditProfile",
+			Handler:    _UserService_EditProfile_Handler,
+		},
+		{
+			MethodName: "ProfileDetails",
+			Handler:    _UserService_ProfileDetails_Handler,
+		},
+		{
+			MethodName: "GetmyImpact",
+			Handler:    _UserService_GetmyImpact_Handler,
+		},
+		{
+			MethodName: "GetMyCampaigns",
+			Handler:    _UserService_GetMyCampaigns_Handler,
+		},
+		{
+			MethodName: "GetSuccessStory",
+			Handler:    _UserService_GetSuccessStory_Handler,
+		},
+		{
+			MethodName: "AddSuccessStory",
+			Handler:    _UserService_AddSuccessStory_Handler,
+		},
+		{
+			MethodName: "EditSuccessStory",
+			Handler:    _UserService_EditSuccessStory_Handler,
+		},
+		{
+			MethodName: "DeleteSuccessStory",
+			Handler:    _UserService_DeleteSuccessStory_Handler,
+		},
+		{
+			MethodName: "GetMonthlyGoal",
+			Handler:    _UserService_GetMonthlyGoal_Handler,
+		},
+		{
+			MethodName: "AddMonthlyGoal",
+			Handler:    _UserService_AddMonthlyGoal_Handler,
+		},
+		{
+			MethodName: "EditMonthlyGoal",
+			Handler:    _UserService_EditMonthlyGoal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -19,6 +19,7 @@ type Post struct {
 	Address    string    `json:"address"`
 	Account_No string    `json:"accno"`
 	CategoryId string    `json:"categoryId"`
+	TaxBenefit bool      `json:"tax_benefit" gorm:"default:false"`
 }
 
 type Reported struct {

@@ -5,313 +5,561 @@ package user;
 option go_package = "./pkg/pb";
 
 service UserService {
-  rpc UserFeeds(UserFeedsRequest) returns (UserFeedsResponse) {}
-  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {}
-  rpc GetCreatePost(GetCreatePostRequest) returns (GetCreatePostResponse){}
-  rpc UserPostDetails(UserPostDetailsRequest) returns(UserPostDetailsResponse) {}
-  rpc Donate(DonateRequest) returns (DonateResponse) {}
-  rpc MakePaymentRazorPay(MakePaymentRazorPayRequest) returns (MakePaymentRazorPayResponse) {}
-  rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse) {}
-  rpc ReportPost(ReportPostRequest) returns (ReportPostResponse) {}
   //rpc (Request) returns (Response) {}
-  rpc EditPost(EditPostRequest) returns (EditPostResponse) {}
-  rpc LikePost(LikePostRequest) returns (LikePostResponse) {}
-  rpc CommentPost(CommentPostRequest) returns (CommentPostResponse) {}
-  rpc ReportComment(ReportCommentRequest) returns (ReportCommentResponse) {}
-  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse) {}
-  rpc DonationHistory(DonationHistoryRequest) returns (DonationHistoryResponse) {}
-  rpc Notifications(NotificationRequest) returns (NotificationResponse) {}
-  rpc NotificationDetail(NotificationDetailsRequest) returns (NotificationDetailsResponse) {}
-  rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse) {}
-  rpc ClearNotification(ClearNotificationRequest) returns (ClearNotificationResponse) {}
-
-}
-
-
-message UserFeedsRequest {
-  int32 page = 1;
-  int32 limit = 2;
-  string searchkey = 3;
-}
-
-message UserFeedsResponse {
-  int64 status = 1;
-  string response = 2;
-  repeated Post Posts= 3;
-
-}
-
-
-message CreatePostRequest {
-  string text = 1;
-  string place = 2;
-  int64 amount = 3;
-  string image = 4;
-  string date = 5;
-  int32 userid = 6;
-  string accno =7;
-  string address =8;
-  int32 categoryid=9;
-}
-
-message EditPostResponse {
-  int64 status = 1;
-  string response = 2;
-  Post post = 3;
-}
-
-message EditPostRequest {
-  string text = 1;
-  string place = 2;
-  int64 amount = 3;
-  string image = 4;
-  string date = 5;
-  int32 postid = 6;
-  string accno =7;
-  string address =8;
-}
-
-message CreatePostResponse {
-  int64 status = 1;
-  string response = 2;
-  Post post = 3;
-}
-message Category {
-  int32 categoryid=1;
-  string category=2;
-}
-message GetCreatePostRequest{}
-
-message GetCreatePostResponse{
-  int64 status = 1;
-  string response = 2;
-  repeated Category categories=3;
-}
-
-
-message UserPostDetailsRequest {
-  int32 postID = 1;
-  int32 userid = 2;
-}
-
-message UserPostDetailsResponse {
-  int64 status = 1;
-  string response = 2;
-  PostDetails Post= 3;
-
-}
-
-
-
-message DonateRequest {
-  int32 postid = 1;
-  int32 amount = 2;
-  int32 userid = 3;
-}
-
-message DonateResponse {
-  int64 status = 1;
-  string response = 2;
-  Post Post= 3;
-  string link=4;
-}
-
-message MakePaymentRazorPayRequest {
-  int32 payid = 1;
-}
-
-message MakePaymentRazorPayResponse {
-  int32 UserID  =1;        
-	string Username  =2;   
-	string Razor_id  =3;
-	int32 PaymentID  =4;
-	int64 FinalPrice =5;
-  int64 status = 6;
-  string response = 7;
-}
-
-message GenerateInvoiceRequest {
-  string invoice_id = 1;
-}
-
-message GenerateInvoiceResponse {
-  int32 UserID  =1;        
-	string Address  =2;
-	int64 FinalPrice =3;
-  int64 status = 4;
-  string response = 5;
-}
-
-
-
-
-message Post {
-  int32 id=1;
-  string text = 2;
-  string place = 3;
-  int64 amount = 4;
-  int64 collected=5;
-  string image = 6;
-  string date = 7;
-  int32 user_id = 8;
-  string account_no =9;
-  string address = 10;
-  int32 likes =11;
-  int32 categoryid=12;
-}
-message Comment {
-  int32 id=1;
-  int32 userid=2;
-  string time =3;
-  string comment=4;
-  int32 postid=5;
-}
-message PostDetails {
-  Post post=1;
-  repeated Comment comments =2;
-}
-
-message ReportPostRequest {
-  int32 postid = 1;
-  string text = 2;
-  int32 userid = 3;
-}
-
-message ReportPostResponse {
-  int64 status = 1;
-  string response = 2;
-  Post Post= 3;
-}
-
-message ReportCommentRequest {
-  int32 commentid = 1;
-  string text = 2;
-  int32 userid = 3;
-}
-
-message ReportCommentResponse {
-  int64 status = 1;
-  string response = 2;
-  PostDetails Post= 3;
-}
-
-message LikePostRequest {
-  int32 postid = 1;
-  int32 userid = 2;
-}
-
-message LikePostResponse {
-  int64 status = 1;
-  string response = 2;
-  PostDetails Post= 3;
-}
-
-message CommentPostRequest {
-  int32 postid = 1;
-  int32 userid = 3;
-  string comment =2;
-}
-
-message CommentPostResponse {
-  int64 status = 1;
-  string response = 2;
-  PostDetails Post= 3;
-}
-
-message DeleteCommentRequest {
-  int32 commentid = 1;
-  int32 userid = 2;
-}
-
-message DeleteCommentResponse {
-  int64 status = 1;
-  string response = 2;
-  PostDetails Post= 3;
-}
-
-message DonationHistoryRequest {
-  int32 page = 1;
-  int32 limit =2;
-  string searchkey =3;
-  int32 userid = 4;
-}
-
-message DonationHistoryResponse {
-  int64 status = 1;
-  string response = 2;
-  repeated Donation donations= 3;
-}
-
-message Donation {
-  int32 id =1;
-  string date =2;
-  Post post =3;
-  int64 amount =4;
-  string paymentid=5; 
-}
-
-
-message Notification {
-  int32 id =1;
-  string time = 2;
-  int32 userid =3;
-  string text =4;
-  PostDetails post =5;
-}
-
-message NotificationRequest {
-  int32 page = 1;
-  int32 limit=2;
-  int32 userid=3;
-  int32 fromid=4;
-}
-
-message NotificationResponse {
-  int64 status = 1;
-  string response = 2;
-  repeated Notification notifications=3;
-}
-message NotificationDetailsRequest {
-  int32 notificationid = 1;
-  int32 userid=2;
-}
-
-message NotificationDetailsResponse {
-  int64 status = 1;
-  string response = 2;
-  Notification notification=3;
-
-}
-message DeleteNotificationRequest {
-  int32 notificationid = 1;
-  int32 userid = 2;
-}
-
-message DeleteNotificationResponse {
-  int64 status = 1;
-  string response = 2;
-}
-
-message ClearNotificationRequest {
-  int32 userid = 1;
-}
-
-message ClearNotificationResponse {
-  int64 status = 1;
-  string response = 2;
-}
-
-message User {
-  string name = 1;
-  string email = 2;
-  string phone = 3;
-  string status = 4;
-  int32 id = 5;
-}
-
-
-
-//////////////////////////////////////////////////////////////
-//note: **add comments on post details
-// **add date extention
-//**add post edit
+    rpc UserFeeds(UserFeedsRequest)                     returns (UserFeedsResponse) {}
+    rpc CreatePost(CreatePostRequest)                   returns (CreatePostResponse) {}
+    rpc GetCreatePost(GetCreatePostRequest)             returns (GetCreatePostResponse){}
+    rpc ExpirePost(ExpirePostRequest)                   returns (ExpirePostResponse) {}
+    rpc DeletePost(UserDeletePostRequest)               returns (UserDeletePostResponse) {}
+    rpc UserPostDetails(UserPostDetailsRequest)         returns (UserPostDetailsResponse) {}
+    rpc Donate(DonateRequest)                           returns (DonateResponse) {}
+    rpc MakePaymentRazorPay(MakePaymentRazorPayRequest) returns (MakePaymentRazorPayResponse) {}
+    rpc GenerateInvoice(GenerateInvoiceRequest)         returns (GenerateInvoiceResponse) {}
+    rpc ReportPost(ReportPostRequest)                   returns (ReportPostResponse) {}
+    rpc EditPost(EditPostRequest)                       returns (EditPostResponse) {}
+    rpc LikePost(LikePostRequest)                       returns (LikePostResponse) {}
+    rpc CommentPost(CommentPostRequest)                 returns (CommentPostResponse) {}
+    rpc ReportComment(ReportCommentRequest)             returns (ReportCommentResponse) {}
+    rpc DeleteComment(DeleteCommentRequest)             returns (DeleteCommentResponse) {}
+    rpc DonationHistory(DonationHistoryRequest)         returns (DonationHistoryResponse) {}
+    rpc Notifications(NotificationRequest)              returns (NotificationResponse) {}
+    rpc NotificationDetail(NotificationDetailsRequest)  returns (NotificationDetailsResponse) {}
+    rpc DeleteNotification(DeleteNotificationRequest)   returns (DeleteNotificationResponse) {}
+    rpc ClearNotification(ClearNotificationRequest)     returns (ClearNotificationResponse) {}
+    rpc GetUpdates(GetUpdatesRequest)                   returns (GetUpdatesResponse) {}
+    rpc AddUpdates(AddUpdatesRequest)                   returns (AddUpdatesResponse) {}
+    rpc EditUpdates(EditUpdatesRequest)                 returns (EditUpdatesResponse) {}
+    rpc DeleteUpdates(DeleteUpdatesRequest)             returns (DeleteUpdatesResponse) {}
+    rpc EditProfile(UserProfile)                        returns (EditProfileResponse) {}
+    rpc ProfileDetails(ProfileDetailsRequest)           returns (ProfileDetailsResponse) {}
+    rpc GetmyImpact(GetmyImpactRequest)                 returns (GetmyImpactResponse) {}
+    rpc GetMyCampaigns(GetMyCampaignsRequest)           returns (GetMyCampaignsResponse) {}
+    rpc GetSuccessStory(GetSuccessStoryRequest)         returns (GetSuccessStoryResponse) {}
+    rpc AddSuccessStory(AddSuccessStoryRequest)         returns (AddSuccessStoryResponse) {}
+    rpc EditSuccessStory(EditSuccessStoryRequest)       returns (EditSuccessStoryResponse) {}
+    rpc DeleteSuccessStory(DeleteSuccessStoryRequest)   returns (DeleteSuccessStoryResponse) {}
+    rpc GetMonthlyGoal(GetMonthlyGoalRequest)           returns (GetMonthlyGoalResponse) {}
+    rpc AddMonthlyGoal(AddMonthlyGoalRequest)           returns (AddMonthlyGoalResponse) {}
+    rpc EditMonthlyGoal(EditMonthlyGoalRequest)         returns (EditMonthlyGoalResponse) {}
+  }
+  
+  
+  message UserFeedsRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    string searchkey = 3;
+    int32 category =4;
+    int32 type=5;
+  }
+  
+  message UserFeedsResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Post Posts= 3;
+    repeated Category Categories=4;
+    repeated SuccesStory successstories=5;
+  }
+  
+  message GetMyCampaignsRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    string searchkey = 3;
+    int32 userId =4;
+  }
+  
+  message GetMyCampaignsResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Post Posts= 3;
+  }
+  
+  message GetmyImpactRequest {
+    int32 userId =1;
+  }
+  
+  message GetmyImpactResponse {
+    int64 status = 1;
+    string response = 2;
+    int32 likes=3;
+    int32 views =4;
+    int64 collected=5;
+    int64 donated=6;
+    int32 lifesChanged=7;
+  }
+  
+  message CreatePostRequest {
+    string text = 1;
+    string place = 2;
+    int64 amount = 3;
+    string image = 4;
+    string date = 5;
+    int32 userid = 6;
+    string accno =7;
+    string address =8;
+    int32 categoryid=9;
+    bool taxbenefit=10;
+  }
+  
+  message EditPostResponse {
+    int64 status = 1;
+    string response = 2;
+    Post post = 3;
+  }
+  
+  message EditPostRequest {
+    string text = 1;
+    string place = 2;
+    int64 amount = 3;
+    string image = 4;
+    string date = 5;
+    int32 postid = 6;
+    string accno =7;
+    string address =8;
+    string title =9;
+    int32 userid=10;
+  }
+  
+  message CreatePostResponse {
+    int64 status = 1;
+    string response = 2;
+    Post post = 3;
+  }
+  message Category {
+    int32 categoryid=1;
+    string category=2;
+  }
+  message GetCreatePostRequest{}
+  
+  message GetCreatePostResponse{
+    int64 status = 1;
+    string response = 2;
+    repeated Category categories=3;
+  }
+  
+  message ExpirePostRequest {
+    int32 postid = 1;
+    int32 userid = 2;
+  }
+  
+  message ExpirePostResponse {
+    int64 status = 1;
+    string response = 2;
+    Post Post= 3;
+  }
+  message UserDeletePostRequest {
+    int32 postid = 1;
+    int32 userid = 2;
+  }
+  
+  message UserDeletePostResponse {
+    int64 status = 1;
+    string response = 2;
+  }
+  message UserPostDetailsRequest {
+    int32 postID = 1;
+    int32 userid = 2;
+  }
+  
+  message UserPostDetailsResponse {
+    int64 status = 1;
+    string response = 2;
+    PostDetails Post= 3;
+  
+  }
+  
+  message DonateRequest {
+    int32 postid = 1;
+    int32 amount = 2;
+    int32 userid = 3;
+  }
+  
+  message DonateResponse {
+    int64 status = 1;
+    string response = 2;
+    Post Post= 3;
+    string link=4;
+  }
+  
+  message MakePaymentRazorPayRequest {
+    int32 payid = 1;
+  }
+  
+  message MakePaymentRazorPayResponse {
+    int32 UserID  =1;        
+    string Username  =2;   
+    string Razor_id  =3;
+    int32 PaymentID  =4;
+    int64 FinalPrice =5;
+    int64 status = 6;
+    string response = 7;
+  }
+  
+  message GenerateInvoiceRequest {
+    string invoice_id = 1;
+  }
+  
+  message GenerateInvoiceResponse {
+    int32 UserID  =1;        
+    string Address  =2;
+    int64 FinalPrice =3;
+    int64 status = 4;
+    string response = 5;
+  }
+  
+  
+  message Post {
+    int32 id=1;
+    string title=13;
+    string text = 2;
+    string place = 3;
+    int64 amount = 4;
+    int64 collected=5;
+    string image = 6;
+    string proof =14;
+    string date = 7;
+    int32 user_id = 8;
+    string account_no =9;
+    string address = 10;
+    int32 likes =11;
+    int32 categoryid=12;
+    bool taxbenefit=15;
+  }
+  message SuccesStory {
+    int32 id=1;
+    string title=2;
+    string text = 3;
+    string place = 4;
+    string image = 5;
+    string date = 6;
+    int32 user_id = 7;
+    int32 likes =8;
+    repeated Comment comments=9;
+  }
+  message Update {
+    int32 id=1;
+    string title=2;
+    string text = 3;
+    string date = 4;
+    int32 postid = 5;
+  }
+  
+  message Comment {
+    int32 id=1;
+    int32 userid=2;
+    string time =3;
+    string comment=4;
+    int32 postid=5;
+  }
+  message PostDetails {
+    Post post=1;
+    repeated Comment comments =2;
+    repeated Update updates=3;
+    repeated Donation donations =4;
+  }
+  
+  message ReportPostRequest {
+    int32 postid = 1;
+    string text = 2;
+    int32 userid = 3;
+  }
+  
+  message ReportPostResponse {
+    int64 status = 1;
+    string response = 2;
+    Post Post= 3;
+  }
+  
+  message ReportCommentRequest {
+    int32 commentid = 1;
+    string text = 2;
+    int32 userid = 3;
+  }
+  
+  message ReportCommentResponse {
+    int64 status = 1;
+    string response = 2;
+    PostDetails Post= 3;
+  }
+  
+  message LikePostRequest {
+    int32 postid = 1;
+    int32 userid = 2;
+  }
+  
+  message LikePostResponse {
+    int64 status = 1;
+    string response = 2;
+    PostDetails Post= 3;
+  }
+  
+  message CommentPostRequest {
+    int32 postid = 1;
+    int32 userid = 3;
+    string comment =2;
+  }
+  
+  message CommentPostResponse {
+    int64 status = 1;
+    string response = 2;
+    PostDetails Post= 3;
+  }
+  
+  message DeleteCommentRequest {
+    int32 commentid = 1;
+    int32 userid = 2;
+  }
+  
+  message DeleteCommentResponse {
+    int64 status = 1;
+    string response = 2;
+    PostDetails Post= 3;
+  }
+  
+  message DonationHistoryRequest {
+    int32 page = 1;
+    int32 limit =2;
+    string searchkey =3;
+    int32 userid = 4;
+  }
+  
+  message DonationHistoryResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Donation donations= 3;
+  }
+  
+  message Donation {
+    int32 id =1;
+    string date =2;
+    Post post =3;
+    int64 amount =4;
+    string paymentid=5; 
+  }
+  
+  
+  message Notification {
+    int32 id =1;
+    string time = 2;
+    int32 userid =3;
+    string text =4;
+    PostDetails post =5;
+  }
+  
+  message NotificationRequest {
+    int32 page = 1;
+    int32 limit=2;
+    int32 userid=3;
+    int32 fromid=4;
+  }
+  
+  message NotificationResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Notification notifications=3;
+  }
+  message NotificationDetailsRequest {
+    int32 notificationid = 1;
+    int32 userid=2;
+  }
+  
+  message NotificationDetailsResponse {
+    int64 status = 1;
+    string response = 2;
+    Notification notification=3;
+  
+  }
+  message DeleteNotificationRequest {
+    int32 notificationid = 1;
+    int32 userid = 2;
+  }
+  
+  message DeleteNotificationResponse {
+    int64 status = 1;
+    string response = 2;
+  }
+  
+  message ClearNotificationRequest {
+    int32 userid = 1;
+  }
+  
+  message ClearNotificationResponse {
+    int64 status = 1;
+    string response = 2;
+  }
+  
+  message User {
+    string name = 1;
+    string email = 2;
+    string phone = 3;
+    string status = 4;
+    int32 id = 5;
+  }
+  message UserProfile {
+    string name = 1;
+    string email = 2;
+    string phone = 3;
+    string status = 4;
+    int32 id = 5;
+    string Gender=6;
+    string DoB=7;
+    string Address=8;
+    string PAN=9;
+    string ProfilePicture=11;
+    bool Anonymous=10;
+  }
+  
+  
+  
+  message ProfileDetailsRequest{
+    int32 userid=1;
+  }
+  message ProfileDetailsResponse{
+    int32 status =1;
+    string response =2;
+    UserProfile user =3;
+  }
+  
+  message EditProfileResponse{
+    int32 status =1;
+    string response =2;
+    UserProfile user =3;
+  }
+  //updates
+  
+  message GetUpdatesRequest {
+    int32 postid = 1;
+  }
+  message GetUpdatesResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Update updates =3;
+  }
+  
+  message AddUpdatesRequest {
+    int32 userid = 1;
+    int32 postid = 2;
+    string title =3;
+    string text =4;
+  }
+  message AddUpdatesResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Update updates =3;
+  }
+  
+  message EditUpdatesRequest {
+    int32 userid = 1;
+    int32 updateid = 2;
+    string title =3;
+    string text =4;
+  }
+  message EditUpdatesResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Update updates =3;
+  }
+  
+  message DeleteUpdatesRequest {
+    int32 userid = 1;
+    int32 updateid = 2;
+  }
+  message DeleteUpdatesResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated Update updates =3;
+  }
+  
+  //Monthly Goal
+  
+  message GetMonthlyGoalRequest {
+    int32 userid = 1;
+  }
+  message GetMonthlyGoalResponse {
+    int64 status = 1;
+    string response = 2;
+    int64 amount=3;
+    int32 day=4;
+  }
+  
+  message AddMonthlyGoalRequest {
+    int32 userid = 1;
+    string category=2;//note or int 
+    int64 amount =3;
+    int32 day =4;
+  }
+  message AddMonthlyGoalResponse {
+    int64 status = 1;
+    string response = 2;
+    string category=5;
+    int64 amount =3;
+    int32 day =4;
+  }
+  
+  message EditMonthlyGoalRequest {
+    int32 userid = 1;
+    string category=2;//note or int 
+    int64 amount =3;
+    int32 day =4;
+  }
+  message EditMonthlyGoalResponse {
+    int64 status = 1;
+    string response = 2;
+    string category=5;
+    int64 amount =3;
+    int32 day =4;
+  }
+  
+  //success story
+  
+  message GetSuccessStoryRequest {
+    int32 page = 1;
+    int32 limit =2;
+    string searchkey =3;
+    int32 userid = 4;
+  }
+  message GetSuccessStoryResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated SuccesStory successStories =3;
+  }
+  
+  message AddSuccessStoryRequest {
+    int32 userId=1;
+    string title=2;
+    string text = 3;
+    string place = 4;
+    string image = 5;
+  }
+  message AddSuccessStoryResponse {
+    int64 status = 1;
+    string response = 2;
+    SuccesStory successStory =3;
+  }
+  
+  message EditSuccessStoryRequest {
+    int32 userId=1;
+    string title=2;
+    string text = 3;
+    string place = 4;
+    string image = 5;
+  }
+  message EditSuccessStoryResponse {
+    int64 status = 1;
+    string response = 2;
+    SuccesStory successStory =3;
+  }
+  
+  message DeleteSuccessStoryRequest {
+    int32 userid = 1;
+    int32 storyid = 2;
+  }
+  message DeleteSuccessStoryResponse {
+    int64 status = 1;
+    string response = 2;
+    repeated SuccesStory successStories =3;
+  }
+  
+  //////////////////////////////////////////////////////////////
+  //note: **add comments on post details
+  // **add date extention
+  //**add post edit
