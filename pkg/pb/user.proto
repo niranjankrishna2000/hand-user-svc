@@ -23,7 +23,6 @@ service UserService {
     rpc DeleteComment(DeleteCommentRequest)             returns (DeleteCommentResponse) {}
     rpc DonationHistory(DonationHistoryRequest)         returns (DonationHistoryResponse) {}
     rpc Notifications(NotificationRequest)              returns (NotificationResponse) {}
-    rpc NotificationDetail(NotificationDetailsRequest)  returns (NotificationDetailsResponse) {}
     rpc DeleteNotification(DeleteNotificationRequest)   returns (DeleteNotificationResponse) {}
     rpc ClearNotification(ClearNotificationRequest)     returns (ClearNotificationResponse) {}
     rpc GetUpdates(GetUpdatesRequest)                   returns (GetUpdatesResponse) {}
@@ -341,7 +340,6 @@ service UserService {
     string time = 2;
     int32 userid =3;
     string text =4;
-    PostDetails post =5;
   }
   
   message NotificationRequest {
@@ -356,17 +354,7 @@ service UserService {
     string response = 2;
     repeated Notification notifications=3;
   }
-  message NotificationDetailsRequest {
-    int32 notificationid = 1;
-    int32 userid=2;
-  }
-  
-  message NotificationDetailsResponse {
-    int64 status = 1;
-    string response = 2;
-    Notification notification=3;
-  
-  }
+
   message DeleteNotificationRequest {
     int32 notificationid = 1;
     int32 userid = 2;

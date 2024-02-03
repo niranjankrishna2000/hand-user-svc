@@ -788,62 +788,6 @@ func (s *Server) Notifications(ctx context.Context, req *pb.NotificationRequest)
 	}, nil
 }
 
-// note: 3 type notifications
-// **donation
-// **like
-// **comment
-// **request
-func (s *Server) NotificationDetail(ctx context.Context, req *pb.NotificationDetailsRequest) (*pb.NotificationDetailsResponse, error) {
-	log.Println("NotificationDetail started")
-	log.Println("Collected Data: ", req)
-	if req.Userid < 1 {
-		return &pb.NotificationDetailsResponse{
-			Status:       http.StatusBadRequest,
-			Response:     "Invalid user ID",
-			Notification: &pb.Notification{},
-		}, errors.New("invalid user ID")
-	}
-	if req.Notificationid < 1 {
-		return &pb.NotificationDetailsResponse{
-			Status:       http.StatusBadRequest,
-			Response:     "Invalid notification ID",
-			Notification: &pb.Notification{},
-		}, errors.New("invalid notification ID")
-	}
-	var notification *pb.Notification
-	sqlQuery := "SELECT * FROM notifications WHERE  user_id=? and id=?'"
-	if err := s.H.DB.Raw(sqlQuery, req.Userid, req.Notificationid).Scan(&notification).Error; err != nil {
-		return &pb.NotificationDetailsResponse{
-			Status:       http.StatusBadRequest,
-			Response:     "couldn't get notification from DB",
-			Notification: &pb.Notification{},
-		}, err
-	}
-	var postId int
-	sqlQuery = "SELECT post_id FROM notifications WHERE  user_id=? and id=?'"
-	if err := s.H.DB.Raw(sqlQuery, req.Userid, req.Notificationid).Scan(&postId).Error; err != nil {
-		return &pb.NotificationDetailsResponse{
-			Status:       http.StatusBadRequest,
-			Response:     "couldn't get post from DB",
-			Notification: notification,
-		}, err
-	}
-	Post, err := s.Getpost(postId)
-	if err != nil {
-		return &pb.NotificationDetailsResponse{Status: http.StatusBadGateway, Response: "Successfully got notification details!!But Could not get post from db", Notification: notification}, err
-	}
-	notification.Post.Post = Post
-	Comments, err := s.GetComments(int(postId))
-	if err != nil {
-		return &pb.NotificationDetailsResponse{Status: http.StatusBadGateway, Response: "Successfully got notification details!! Could not get comments from db", Notification: notification}, err
-	}
-	notification.Post.Comments = Comments
-	return &pb.NotificationDetailsResponse{
-		Status:       http.StatusOK,
-		Response:     "Successfully got the notification details",
-		Notification: notification,
-	}, nil
-}
 
 func (s *Server) DeleteNotification(ctx context.Context, req *pb.DeleteNotificationRequest) (*pb.DeleteNotificationResponse, error) {
 	log.Println("DeleteNotification started")
