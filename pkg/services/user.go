@@ -1065,7 +1065,7 @@ func (s *Server) AddMonthlyGoal(ctx context.Context, req *pb.AddMonthlyGoalReque
     VALUES (?, ?, ?, ?)
 	`
 
-	s.H.DB.Raw(query, req.Userid, req.Amount, req.Day, req.Category)
+	s.H.DB.Exec(query, req.Userid, req.Amount, req.Day, req.Category)
 	var monthlyGoal models.MonthlyGoal
 
 	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where user_id=?", req.Userid).Scan(&monthlyGoal).Error; err != nil {
