@@ -1045,6 +1045,7 @@ func (s *Server) GetMonthlyGoal(ctx context.Context, req *pb.GetMonthlyGoalReque
 			Amount:   0,
 		}, errors.New("could not get updates from DB")
 	}
+	log.Println(monthly_goals)
 	if monthly_goals.Amount == 0 {
 		return &pb.GetMonthlyGoalResponse{
 			Status:   http.StatusOK,
