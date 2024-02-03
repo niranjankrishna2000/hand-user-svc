@@ -76,6 +76,7 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 		Post:     postdetails,
 	}, nil
 }
+
 //test image nil
 //test category
 
@@ -1090,7 +1091,7 @@ func (s *Server) DeleteUpdate(ctx context.Context, req *pb.DeleteUpdatesRequest)
 func (s *Server) GetMonthlyGoal(ctx context.Context, req *pb.GetMonthlyGoalRequest) (*pb.GetMonthlyGoalResponse, error) {
 	log.Println("GetMonthlyGoal Service Starting...", req)
 	monthly_goals := models.MonthlyGoal{}
-	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where id=?", req.Userid).Scan(&monthly_goals).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where user_id=?", req.Userid).Scan(&monthly_goals).Error; err != nil {
 		return &pb.GetMonthlyGoalResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get updates from DB",
@@ -1121,7 +1122,7 @@ func (s *Server) AddMonthlyGoal(ctx context.Context, req *pb.AddMonthlyGoalReque
 	s.H.DB.Raw(query, req.Userid, req.Amount, req.Day, req.Category)
 	var monthlyGoal models.MonthlyGoal
 
-	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where userid=?", req.Userid).Scan(&monthlyGoal).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where user_id=?", req.Userid).Scan(&monthlyGoal).Error; err != nil {
 		return &pb.AddMonthlyGoalResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get posts from DB" + err.Error(),
@@ -1142,7 +1143,7 @@ func (s *Server) EditMonthlyGoal(ctx context.Context, req *pb.EditMonthlyGoalReq
 	log.Println("EditMonthlyGoal Service Starting...", req)
 	var monthlyGoal models.MonthlyGoal
 
-	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where userid=?", req.Userid).Scan(&monthlyGoal).Error; err != nil || monthlyGoal.Amount == 0 {
+	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where user_id=?", req.Userid).Scan(&monthlyGoal).Error; err != nil || monthlyGoal.Amount == 0 {
 		query := `
     	INSERT INTO monthly_goals (user_id, amount,day, category)
     	VALUES (?, ?, ?, ?)
@@ -1156,12 +1157,12 @@ func (s *Server) EditMonthlyGoal(ctx context.Context, req *pb.EditMonthlyGoalReq
 			Day:      req.Day,
 		}, errors.New("added the goal")
 	}
-	err := s.H.DB.Exec("UPDATE monthly_goals set amount = ? and day= ? and category =? where userid = ?", req.Amount, req.Day, req.Category, req.Userid).Error
+	err := s.H.DB.Exec("UPDATE monthly_goals set amount = ? and day= ? and category =? where user_id = ?", req.Amount, req.Day, req.Category, req.Userid).Error
 	if err != nil {
 		fmt.Println(err)
 		return &pb.EditMonthlyGoalResponse{Status: http.StatusBadGateway, Response: "Could not Update the goal details"}, err
 	}
-	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where id=?", req.Userid).Scan(&monthlyGoal).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where user_id=?", req.Userid).Scan(&monthlyGoal).Error; err != nil {
 		return &pb.EditMonthlyGoalResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get updates from DB",
@@ -1192,7 +1193,7 @@ func (s *Server) GetmyImpact(ctx context.Context, req *pb.GetmyImpactRequest) (*
 	}
 	if err := s.H.DB.Raw(`SELECT SUM(views)
 	FROM posts
-	WHERE userid = ?`, req.UserId).Scan(&views).Error; err != nil {
+	WHERE user_id = ?`, req.UserId).Scan(&views).Error; err != nil {
 		return &pb.GetmyImpactResponse{
 			Status:   http.StatusBadRequest,
 			Response: "could not get data",
@@ -1292,7 +1293,7 @@ func (s *Server) AddSuccessStory(ctx context.Context, req *pb.AddSuccessStoryReq
     INSERT INTO stories (title,text, place,image, date,user_id)
     VALUES (?, ?, ?, ?, ?,?) RETURNING id
 	`
-	s.H.DB.Raw(query, req.Title,req.Text, req.Place, req.Image, time.Now(), req.UserId).Scan(&storyId)
+	s.H.DB.Raw(query, req.Title, req.Text, req.Place, req.Image, time.Now(), req.UserId).Scan(&storyId)
 	var stories *pb.SuccesStory
 
 	if err := s.H.DB.Raw("SELECT * FROM stories where id=?", storyId).Scan(&stories).Error; err != nil {
@@ -1331,8 +1332,8 @@ func (s *Server) EditSuccessStory(ctx context.Context, req *pb.EditSuccessStoryR
 		}, errors.New("could not get story from DB")
 	}
 	return &pb.EditSuccessStoryResponse{
-		Status:   http.StatusOK,
-		Response: "Successfully updated the success story",
+		Status:       http.StatusOK,
+		Response:     "Successfully updated the success story",
 		SuccessStory: &story,
 	}, nil
 }
