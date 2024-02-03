@@ -940,7 +940,7 @@ func (s *Server) GetUpdates(ctx context.Context, req *pb.GetUpdatesRequest) (*pb
 		}, errors.New("invalid Post Id")
 	}
 	updates := []*pb.Update{}
-	if err := s.H.DB.Raw("SELECT * FROM updates where id=?", req.Postid).Scan(&updates).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM updates where postid=?", req.Postid).Scan(&updates).Error; err != nil {
 		return &pb.GetUpdatesResponse{
 			Status:   http.StatusBadRequest,
 			Response: "couldn't get updates from DB",
