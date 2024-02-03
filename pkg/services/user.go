@@ -1289,10 +1289,10 @@ func (s *Server) AddSuccessStory(ctx context.Context, req *pb.AddSuccessStoryReq
 	log.Println("AddSuccessStory Service Starting...", req)
 	storyId := 0
 	query := `
-    INSERT INTO stories (text, place,image, date,user_id)
-    VALUES (?, ?, ?, ?, ?) RETURNING id
+    INSERT INTO stories (title,text, place,image, date,user_id)
+    VALUES (?, ?, ?, ?, ?,?) RETURNING id
 	`
-	s.H.DB.Raw(query, req.Text, req.Place, req.Image, time.Now, req.UserId).Scan(&storyId)
+	s.H.DB.Raw(query, req.Title,req.Text, req.Place, req.Image, time.Now(), req.UserId).Scan(&storyId)
 	var stories *pb.SuccesStory
 
 	if err := s.H.DB.Raw("SELECT * FROM stories where id=?", storyId).Scan(&stories).Error; err != nil {
@@ -1304,7 +1304,7 @@ func (s *Server) AddSuccessStory(ctx context.Context, req *pb.AddSuccessStoryReq
 	}
 	return &pb.AddSuccessStoryResponse{
 		Status:       http.StatusOK,
-		Response:     "Successfully got  the successstories",
+		Response:     "Successfully created the success story",
 		SuccessStory: stories,
 	}, nil
 }
