@@ -730,8 +730,8 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 
 	var donations []*pb.Donation
 	var donationlist []*models.Payment
-	for i,_:=range donationlist{
-		donations=append(donations, &pb.Donation{Id: int32(donationlist[i].Id),Date: donationlist[i].Date.String(),Amount: int64(donationlist[i].Amount),Paymentid: donationlist[i].PaymentID})
+	for _,value:=range donationlist{
+		donations=append(donations, &pb.Donation{Id: int32(value.Id),Date: value.Date.String(),Amount: int64(value.Amount),Paymentid: value.PaymentID})
 	}
 	sqlQuery := "SELECT * FROM payments WHERE status = 'completed' and user_id=?"
 	sqlQuery += " ORDER BY date DESC, amount DESC LIMIT ? OFFSET ?"
@@ -743,6 +743,7 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 			Donations: []*pb.Donation{},
 		}, err
 	}
+	fmt.Println(donationlist,donations)
 	//iterate and copy
 	return &pb.DonationHistoryResponse{
 		Status:    http.StatusOK,
