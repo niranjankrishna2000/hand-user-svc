@@ -1383,13 +1383,14 @@ func (s *Server) GetComments(postId int) ([]*pb.Comment, error) {
 	return postComments, nil
 }
 func (s *Server) Notify(userId int, fromId int, postId int, notificationType string) error {
+	log.Println("==================notification====================")
 	text := ""
 	text = fmt.Sprintf("You have a new %s from %d for post %d", notificationType, userId, postId)
 	query := `
-    INSERT INTO notifications (user_id,from_id, post_id,time, text, type)
+    INSERT INTO notifications(user_id,from_id, post_id,time, text, type)
     VALUES (?, ?, ?, ?, ?,?)
 	`
-	s.H.DB.Raw(query, fromId, userId, postId, time.Now(), text, notificationType)
+	s.H.DB.Exec(query, fromId, userId, postId, time.Now(), text, notificationType)
 	return nil
 }
 func (s *Server) CheckUserId(userId int32) (*pb.User, error) {
@@ -1443,7 +1444,7 @@ func (s *Server) CheckAutoPay(userId int32) string {
 	}
 	var payID int32
 	query := `
-    INSERT INTO payments (user_id, post_id,amount, date,status)
+    INSERT INTO payments(user_id, post_id,amount, date,status)
     VALUES (?, ?, ?, ?,?) RETURNING id
 	`
 	s.H.DB.Raw(query, userId, post.Id, monthlyGoal.Amount, time.Now(), "pending").Scan(&payID)
