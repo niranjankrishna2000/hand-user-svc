@@ -6,7 +6,7 @@ type MonthlyGoal struct {
 	UserID   int    `json:"userID" gorm:"not null,unique"`
 	Amount   int    `json:"postID" gorm:"not null"`
 	Day      int    `json:"day" gorm:"not null"`
-	Category string `json:"comment" gorm:"not null"`
+	Category int `json:"comment" gorm:"not null"`
 }
 type User struct {
 	Name           string    `json:"name" gorm:"not null"`

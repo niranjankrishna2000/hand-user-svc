@@ -540,6 +540,7 @@ service UserService {
     string text = 3;
     string place = 4;
     string image = 5;
+    int32 storyid=6;
   }
   message EditSuccessStoryResponse {
     int64 status = 1;

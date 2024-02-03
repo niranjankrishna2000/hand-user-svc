@@ -18,7 +18,7 @@ type Post struct {
 	Date       time.Time `json:"time"`
 	Address    string    `json:"address"`
 	Account_No string    `json:"accno"`
-	CategoryId string    `json:"categoryId"`
+	CategoryId string    `json:"cat_id"`
 	TaxBenefit bool      `json:"tax_benefit" gorm:"default:false"`
 }
 
