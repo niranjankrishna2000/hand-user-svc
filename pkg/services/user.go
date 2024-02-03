@@ -901,7 +901,7 @@ func (s *Server) EditProfile(ctx context.Context, req *pb.UserProfile) (*pb.Edit
 		}
 	}
 	if req.DoB != "" {
-		layout := "2006-01-02"
+		layout := "2006-01-02 00:00:00"
 		timestamp, err := time.Parse(layout, req.DoB)
 		if err != nil {
 			fmt.Println("Error parsing string:", err)
