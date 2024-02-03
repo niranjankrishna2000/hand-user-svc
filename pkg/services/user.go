@@ -731,9 +731,6 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 	// var donations []*pb.Donation
 	var donationlist []*models.Payment
 	sqlQuery := "SELECT * FROM payments WHERE status = 'completed' and user_id=?"
-	if req.Searchkey != "" {
-		sqlQuery += " AND (text ILIKE '%" + req.Searchkey + "%' OR place ILIKE '%" + req.Searchkey + "%')"
-	}
 	sqlQuery += " ORDER BY date DESC, amount DESC LIMIT ? OFFSET ?"
 
 	if err := s.H.DB.Raw(sqlQuery, req.Userid, limit, offset).Scan(&donationlist).Error; err != nil {
