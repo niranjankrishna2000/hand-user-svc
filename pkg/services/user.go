@@ -1383,7 +1383,7 @@ func (s *Server) CheckAutoPay(userId int32) string {
 		return ""
 	}
 	var post pb.Post
-	if err := s.H.DB.Raw("SELECT * FROM posts WHERE cat_id=? AND status = 'approved' AND amount - collected < ?)", monthlyGoal.Category, monthlyGoal.Amount).Scan(&post).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM posts WHERE cat_id=? AND status = 'approved' AND amount - collected < ?", monthlyGoal.Category, monthlyGoal.Amount).Scan(&post).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Println(err.Error())
 			return ""
@@ -1397,7 +1397,7 @@ func (s *Server) CheckAutoPay(userId int32) string {
 	s.H.DB.Raw(query, userId, post.Id, monthlyGoal.Amount, time.Now(), "pending").Scan(&payID)
 
 	link := fmt.Sprintf("https://handcrowdfunding.online/user/post/donate/razorpay?payid=%d", payID)
-	return "Pay This Month Donation Today :" + link
+	return " Pay This Month Donation Today :" + link
 }
 
 // func (s *Server) GetUpdates() {}
