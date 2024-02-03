@@ -157,7 +157,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 
 func (s *Server) UserPostDetails(ctx context.Context, req *pb.UserPostDetailsRequest) (*pb.UserPostDetailsResponse, error) {
 
-	log.Println("Post detailes started",req)
+	log.Println("Post detailes started", req)
 
 	var post pb.Post
 	if err := s.H.DB.Raw("SELECT * FROM posts WHERE id=? AND (status = 'approved' OR status ='expired')", req.PostID).Scan(&post).Error; err != nil {
@@ -716,7 +716,7 @@ func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest
 
 // donation
 func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryRequest) (*pb.DonationHistoryResponse, error) {
-	log.Println("Donation History started",req)
+	log.Println("Donation History started", req)
 	var page, limit int64
 	page, limit = int64(req.Page), int64(req.Limit)
 	// pagination purpose -
@@ -730,7 +730,7 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 
 	var donations []*pb.Donation
 	var donationlist []*models.Payment
-	
+
 	sqlQuery := "SELECT * FROM payments WHERE status = 'completed' and user_id=?"
 	sqlQuery += " ORDER BY date DESC, amount DESC LIMIT ? OFFSET ?"
 
@@ -741,10 +741,10 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 			Donations: []*pb.Donation{},
 		}, err
 	}
-	for _,value:=range donationlist{
-		donations=append(donations, &pb.Donation{Id: int32(value.Id),Date: value.Date.String(),Amount: int64(value.Amount),Paymentid: value.PaymentID})
+	for _, value := range donationlist {
+		donations = append(donations, &pb.Donation{Id: int32(value.Id), Date: value.Date.String(), Amount: int64(value.Amount), Paymentid: value.PaymentID})
 	}
-	fmt.Println(donationlist,donations)
+	fmt.Println(donationlist, donations)
 	//iterate and copy
 	return &pb.DonationHistoryResponse{
 		Status:    http.StatusOK,
@@ -789,7 +789,6 @@ func (s *Server) Notifications(ctx context.Context, req *pb.NotificationRequest)
 		Notifications: notifications,
 	}, nil
 }
-
 
 func (s *Server) DeleteNotification(ctx context.Context, req *pb.DeleteNotificationRequest) (*pb.DeleteNotificationResponse, error) {
 	log.Println("DeleteNotification started")
@@ -845,7 +844,7 @@ func (s *Server) ProfileDetails(ctx context.Context, req *pb.ProfileDetailsReque
 				Status:   http.StatusNotFound,
 				Response: "user Not Found",
 				User:     &pb.UserProfile{Name: "", Email: "", Phone: "", Id: user.Id, Gender: "", DoB: "", Address: "", PAN: "", ProfilePicture: ""},
-				}, errors.New("user not found")
+			}, errors.New("user not found")
 		}
 	}
 	log.Println("user profile: ", &user)
@@ -1149,7 +1148,7 @@ func (s *Server) GetmyImpact(ctx context.Context, req *pb.GetmyImpactRequest) (*
 	}
 	if err := s.H.DB.Raw(`SELECT SUM(collected)
 	FROM posts
-	WHERE userid = ?`, req.UserId).Scan(&collected).Error; err != nil {
+	WHERE user_id = ?`, req.UserId).Scan(&collected).Error; err != nil {
 		return &pb.GetmyImpactResponse{
 			Status:   http.StatusBadRequest,
 			Response: "could not get data",
@@ -1159,7 +1158,7 @@ func (s *Server) GetmyImpact(ctx context.Context, req *pb.GetmyImpactRequest) (*
 	}
 	if err := s.H.DB.Raw(`SELECT SUM(amount)
 	FROM payments
-	WHERE userid = ?`, req.UserId).Scan(&donated).Error; err != nil {
+	WHERE user_id = ?`, req.UserId).Scan(&donated).Error; err != nil {
 		return &pb.GetmyImpactResponse{
 			Status:    http.StatusBadRequest,
 			Response:  "could not get data",
@@ -1201,7 +1200,7 @@ func (s *Server) GetMyCampaigns(ctx context.Context, req *pb.GetMyCampaignsReque
 			Posts:    []*pb.Post{},
 		}, errors.New("could not get posts from DB")
 	}
-	log.Println("campaigns",Posts)
+	log.Println("campaigns", Posts)
 	if len(Posts) == 0 {
 		return &pb.GetMyCampaignsResponse{
 			Status:   http.StatusBadRequest,
