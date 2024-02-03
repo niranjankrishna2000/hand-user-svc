@@ -30,7 +30,7 @@ type UserFeedsRequest struct {
 	Searchkey string `protobuf:"bytes,3,opt,name=searchkey,proto3" json:"searchkey,omitempty"`
 	Category  int32  `protobuf:"varint,4,opt,name=category,proto3" json:"category,omitempty"`
 	Type      int32  `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`
-	Userid    int32  `protobuf:"varint,6,opt,name=userid,proto3" json:"userid,omitempty"`
+	Userid    int32  `protobuf:"varint,6,opt,name=userid,proto3" json:"userid"`
 }
 
 func (x *UserFeedsRequest) Reset() {
