@@ -386,7 +386,7 @@ service UserService {
     string email = 2;
     string phone = 3;
     string status = 4;
-    int32 id = 5;
+    int64 id = 5;
     string Gender=6;
     string DoB=7;
     string Address=8;

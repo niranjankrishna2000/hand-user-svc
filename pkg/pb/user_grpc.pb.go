@@ -36,7 +36,6 @@ const (
 	UserService_DeleteComment_FullMethodName       = "/user.UserService/DeleteComment"
 	UserService_DonationHistory_FullMethodName     = "/user.UserService/DonationHistory"
 	UserService_Notifications_FullMethodName       = "/user.UserService/Notifications"
-	UserService_NotificationDetail_FullMethodName  = "/user.UserService/NotificationDetail"
 	UserService_DeleteNotification_FullMethodName  = "/user.UserService/DeleteNotification"
 	UserService_ClearNotification_FullMethodName   = "/user.UserService/ClearNotification"
 	UserService_GetUpdates_FullMethodName          = "/user.UserService/GetUpdates"
@@ -78,7 +77,6 @@ type UserServiceClient interface {
 	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error)
 	DonationHistory(ctx context.Context, in *DonationHistoryRequest, opts ...grpc.CallOption) (*DonationHistoryResponse, error)
 	Notifications(ctx context.Context, in *NotificationRequest, opts ...grpc.CallOption) (*NotificationResponse, error)
-	NotificationDetail(ctx context.Context, in *NotificationDetailsRequest, opts ...grpc.CallOption) (*NotificationDetailsResponse, error)
 	DeleteNotification(ctx context.Context, in *DeleteNotificationRequest, opts ...grpc.CallOption) (*DeleteNotificationResponse, error)
 	ClearNotification(ctx context.Context, in *ClearNotificationRequest, opts ...grpc.CallOption) (*ClearNotificationResponse, error)
 	GetUpdates(ctx context.Context, in *GetUpdatesRequest, opts ...grpc.CallOption) (*GetUpdatesResponse, error)
@@ -253,15 +251,6 @@ func (c *userServiceClient) DonationHistory(ctx context.Context, in *DonationHis
 func (c *userServiceClient) Notifications(ctx context.Context, in *NotificationRequest, opts ...grpc.CallOption) (*NotificationResponse, error) {
 	out := new(NotificationResponse)
 	err := c.cc.Invoke(ctx, UserService_Notifications_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) NotificationDetail(ctx context.Context, in *NotificationDetailsRequest, opts ...grpc.CallOption) (*NotificationDetailsResponse, error) {
-	out := new(NotificationDetailsResponse)
-	err := c.cc.Invoke(ctx, UserService_NotificationDetail_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -443,7 +432,6 @@ type UserServiceServer interface {
 	DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error)
 	DonationHistory(context.Context, *DonationHistoryRequest) (*DonationHistoryResponse, error)
 	Notifications(context.Context, *NotificationRequest) (*NotificationResponse, error)
-	NotificationDetail(context.Context, *NotificationDetailsRequest) (*NotificationDetailsResponse, error)
 	DeleteNotification(context.Context, *DeleteNotificationRequest) (*DeleteNotificationResponse, error)
 	ClearNotification(context.Context, *ClearNotificationRequest) (*ClearNotificationResponse, error)
 	GetUpdates(context.Context, *GetUpdatesRequest) (*GetUpdatesResponse, error)
@@ -518,9 +506,6 @@ func (UnimplementedUserServiceServer) DonationHistory(context.Context, *Donation
 }
 func (UnimplementedUserServiceServer) Notifications(context.Context, *NotificationRequest) (*NotificationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Notifications not implemented")
-}
-func (UnimplementedUserServiceServer) NotificationDetail(context.Context, *NotificationDetailsRequest) (*NotificationDetailsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method NotificationDetail not implemented")
 }
 func (UnimplementedUserServiceServer) DeleteNotification(context.Context, *DeleteNotificationRequest) (*DeleteNotificationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNotification not implemented")
@@ -888,24 +873,6 @@ func _UserService_Notifications_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).Notifications(ctx, req.(*NotificationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_NotificationDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NotificationDetailsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).NotificationDetail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_NotificationDetail_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).NotificationDetail(ctx, req.(*NotificationDetailsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1290,10 +1257,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Notifications",
 			Handler:    _UserService_Notifications_Handler,
-		},
-		{
-			MethodName: "NotificationDetail",
-			Handler:    _UserService_NotificationDetail_Handler,
 		},
 		{
 			MethodName: "DeleteNotification",
