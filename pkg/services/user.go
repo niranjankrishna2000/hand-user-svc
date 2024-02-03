@@ -898,8 +898,8 @@ func (s *Server) ProfileDetails(ctx context.Context, req *pb.ProfileDetailsReque
 			return &pb.ProfileDetailsResponse{
 				Status:   http.StatusNotFound,
 				Response: "user Not Found",
-				User:     &pb.UserProfile{},
-			}, errors.New("user not found")
+				User:     &pb.UserProfile{Name: "", Email: "", Phone: "", Id: user.Id, Gender: "", DoB: "", Address: "", PAN: "", ProfilePicture: ""},
+				}, errors.New("user not found")
 		}
 	}
 	log.Println("user profile: ", &user)
@@ -955,13 +955,13 @@ func (s *Server) EditProfile(ctx context.Context, req *pb.UserProfile) (*pb.Edit
 		}
 	}
 	if req.DoB != "" {
-		layout := "2006-01-02"
+		layout := "2006-01-02 00:00:00"
 		timestamp, err := time.Parse(layout, req.DoB)
 		if err != nil {
 			fmt.Println("Error parsing string:", err)
 			return &pb.EditProfileResponse{Status: http.StatusBadGateway, Response: "Could not Update DoB No", User: &pb.UserProfile{}}, err
 		}
-		err = s.H.DB.Exec("UPDATE users set dob = ? where id = ?", timestamp, req.DoB).Error
+		err = s.H.DB.Exec("UPDATE users set dob = ? where id = ?", timestamp, req.Id).Error
 		if err != nil {
 			fmt.Println(err)
 			return &pb.EditProfileResponse{Status: http.StatusBadGateway, Response: "Could not Update phone No", User: &pb.UserProfile{}}, err
