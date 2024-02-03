@@ -954,7 +954,7 @@ func (s *Server) GetUpdates(ctx context.Context, req *pb.GetUpdatesRequest) (*pb
 		Updates:  updates,
 	}, nil
 }
-func (s *Server) AddUpdate(ctx context.Context, req *pb.AddUpdatesRequest) (*pb.AddUpdatesResponse, error) {
+func (s *Server) AddUpdates(ctx context.Context, req *pb.AddUpdatesRequest) (*pb.AddUpdatesResponse, error) {
 	log.Println("AddUpdate Service Starting...", req)
 
 	if !s.CheckIfOwner(req.Userid, req.Postid) {
@@ -985,7 +985,7 @@ func (s *Server) AddUpdate(ctx context.Context, req *pb.AddUpdatesRequest) (*pb.
 		Updates:  updates,
 	}, nil
 }
-func (s *Server) EditUpdate(ctx context.Context, req *pb.EditUpdatesRequest) (*pb.EditUpdatesResponse, error) {
+func (s *Server) EditUpdates(ctx context.Context, req *pb.EditUpdatesRequest) (*pb.EditUpdatesResponse, error) {
 	log.Println("EditUpdate Service Starting...", req)
 	update := pb.Update{}
 	if err := s.H.DB.Raw("SELECT * FROM updates where id =? and user_id=?", req.Updateid, req.Userid).Scan(&update).Error; err != nil {
@@ -1013,7 +1013,7 @@ func (s *Server) EditUpdate(ctx context.Context, req *pb.EditUpdatesRequest) (*p
 		Updates:  []*pb.Update{&updates},
 	}, nil
 }
-func (s *Server) DeleteUpdate(ctx context.Context, req *pb.DeleteUpdatesRequest) (*pb.DeleteUpdatesResponse, error) {
+func (s *Server) DeleteUpdates(ctx context.Context, req *pb.DeleteUpdatesRequest) (*pb.DeleteUpdatesResponse, error) {
 	log.Println("DeleteUpdate Service Starting...", req)
 
 	update := pb.Update{}
