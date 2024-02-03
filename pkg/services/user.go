@@ -955,7 +955,7 @@ func (s *Server) EditProfile(ctx context.Context, req *pb.UserProfile) (*pb.Edit
 		}
 	}
 	if req.DoB != "" {
-		layout := "2006-01-02 00:00:00"
+		layout := "2006-01-02"
 		timestamp, err := time.Parse(layout, req.DoB)
 		if err != nil {
 			fmt.Println("Error parsing string:", err)
@@ -1254,6 +1254,7 @@ func (s *Server) GetMyCampaigns(ctx context.Context, req *pb.GetMyCampaignsReque
 			Posts:    []*pb.Post{},
 		}, errors.New("could not get posts from DB")
 	}
+	log.Println("campaigns",Posts)
 	if len(Posts) == 0 {
 		return &pb.GetMyCampaignsResponse{
 			Status:   http.StatusBadRequest,
