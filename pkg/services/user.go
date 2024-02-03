@@ -987,7 +987,7 @@ func (s *Server) AddUpdates(ctx context.Context, req *pb.AddUpdatesRequest) (*pb
 func (s *Server) EditUpdates(ctx context.Context, req *pb.EditUpdatesRequest) (*pb.EditUpdatesResponse, error) {
 	log.Println("EditUpdate Service Starting...", req)
 	update := pb.Update{}
-	if err := s.H.DB.Raw("SELECT * FROM updates where id =? and user_id=?", req.Updateid, req.Userid).Scan(&update).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM updates where id =?", req.Updateid).Scan(&update).Error; err != nil {
 		return &pb.EditUpdatesResponse{
 			Status:   http.StatusBadRequest,
 			Response: "You cant edit the update",
@@ -1039,10 +1039,10 @@ func (s *Server) GetMonthlyGoal(ctx context.Context, req *pb.GetMonthlyGoalReque
 	if err := s.H.DB.Raw("SELECT * FROM monthly_goals where user_id=?", req.Userid).Scan(&monthly_goals).Error; err != nil {
 		return &pb.GetMonthlyGoalResponse{
 			Status:   http.StatusBadRequest,
-			Response: "couldn't get updates from DB",
+			Response: "couldn't get data from DB",
 			Day:      0,
 			Amount:   0,
-		}, errors.New("could not get updates from DB")
+		}, errors.New("could not get data from DB")
 	}
 	log.Println(monthly_goals)
 	if monthly_goals.Amount == 0 {
