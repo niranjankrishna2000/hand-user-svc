@@ -838,7 +838,7 @@ func (s *Server) ProfileDetails(ctx context.Context, req *pb.ProfileDetailsReque
 	log.Println("ProfileDetails Service Starting...", req)
 
 	var user pb.UserProfile
-	if err := s.H.DB.Raw("SELECT * FROM users WHERE id=? AND (status = 'approved' OR status ='expired')", req.Userid).Scan(&user).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM users WHERE id=? AND status = 'active'", req.Userid).Scan(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Println(err.Error())
 			return &pb.ProfileDetailsResponse{
