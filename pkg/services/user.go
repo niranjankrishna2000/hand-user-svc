@@ -730,9 +730,7 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 
 	var donations []*pb.Donation
 	var donationlist []*models.Payment
-	for _,value:=range donationlist{
-		donations=append(donations, &pb.Donation{Id: int32(value.Id),Date: value.Date.String(),Amount: int64(value.Amount),Paymentid: value.PaymentID})
-	}
+	
 	sqlQuery := "SELECT * FROM payments WHERE status = 'completed' and user_id=?"
 	sqlQuery += " ORDER BY date DESC, amount DESC LIMIT ? OFFSET ?"
 
@@ -742,6 +740,9 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 			Response:  "couldn't get posts from DB",
 			Donations: []*pb.Donation{},
 		}, err
+	}
+	for _,value:=range donationlist{
+		donations=append(donations, &pb.Donation{Id: int32(value.Id),Date: value.Date.String(),Amount: int64(value.Amount),Paymentid: value.PaymentID})
 	}
 	fmt.Println(donationlist,donations)
 	//iterate and copy
