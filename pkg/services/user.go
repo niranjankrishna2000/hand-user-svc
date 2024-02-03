@@ -157,7 +157,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 
 func (s *Server) UserPostDetails(ctx context.Context, req *pb.UserPostDetailsRequest) (*pb.UserPostDetailsResponse, error) {
 
-	log.Println("Post detailes started")
+	log.Println("Post detailes started",req)
 
 	var post pb.Post
 	if err := s.H.DB.Raw("SELECT * FROM posts WHERE id=? AND (status = 'approved' OR status ='expired')", req.PostID).Scan(&post).Error; err != nil {
@@ -1428,7 +1428,7 @@ func (s *Server) CheckIfOwner(userId, postId int32) bool {
 
 func (s *Server) CheckAutoPay(userId int32) string {
 	var monthlyGoal models.MonthlyGoal
-	if err := s.H.DB.Raw("SELECT * FROM monthlygoals WHERE user_id=?", userId).Scan(&monthlyGoal).Error; err != nil {
+	if err := s.H.DB.Raw("SELECT * FROM monthly_goals WHERE user_id=?", userId).Scan(&monthlyGoal).Error; err != nil {
 		return ""
 	}
 	if monthlyGoal.Day < time.Now().Day() {
