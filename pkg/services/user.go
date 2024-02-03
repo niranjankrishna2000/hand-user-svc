@@ -716,7 +716,7 @@ func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest
 
 // donation
 func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryRequest) (*pb.DonationHistoryResponse, error) {
-	log.Println("Donation History started")
+	log.Println("Donation History started",req)
 	var page, limit int64
 	page, limit = int64(req.Page), int64(req.Limit)
 	// pagination purpose -
@@ -729,7 +729,7 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 	offset := (page - 1) * limit
 
 	// var donations []*pb.Donation
-	var donationlist []*models.Payment
+	var donationlist []*pb.Donation
 	sqlQuery := "SELECT * FROM payments WHERE status = 'completed' and user_id=?"
 	sqlQuery += " ORDER BY date DESC, amount DESC LIMIT ? OFFSET ?"
 
@@ -744,7 +744,7 @@ func (s *Server) DonationHistory(ctx context.Context, req *pb.DonationHistoryReq
 	return &pb.DonationHistoryResponse{
 		Status:    http.StatusOK,
 		Response:  "successfully retrieved Donation history",
-		Donations: []*pb.Donation{},
+		Donations: donationlist,
 	}, nil
 }
 
