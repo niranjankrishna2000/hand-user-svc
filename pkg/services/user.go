@@ -76,7 +76,6 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 		Post:     postdetails,
 	}, nil
 }
-
 //test image nil
 //test category
 
