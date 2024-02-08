@@ -12,6 +12,7 @@ type Post struct {
 	UserID     int       `json:"userID"`
 	Text       string    `json:"text"`
 	Place      string    `json:"string"`
+	Title      string    `json:"title"`
 	Amount     int       `json:"amount"`
 	Collected  int       `json:"collected"`
 	Image      string    `json:"image"`
