@@ -102,7 +102,7 @@ func (s *Server) UserFeeds(ctx context.Context, req *pb.UserFeedsRequest) (*pb.U
 		sqlQuery += " AND (text ILIKE '%" + req.Searchkey + "%' OR place ILIKE '%" + req.Searchkey + "%' OR title ILIKE '%" + req.Searchkey + "%')"
 	}
 	if req.Category != 0 {
-		sqlQuery += " AND category_id = " + strconv.Itoa(int(req.Category))
+		sqlQuery += " AND category_id = '" + strconv.Itoa(int(req.Category))+"'"
 	}
 	if req.Type == 2 {
 		sqlQuery += " AND status = 'expired'"
