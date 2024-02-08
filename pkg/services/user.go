@@ -1331,8 +1331,13 @@ func (s *Server) GetComments(postId int) ([]*pb.Comment, error) {
 }
 func (s *Server) Notify(userId int, fromId int, postId int, notificationType string) error {
 	log.Println("==================notification====================")
+	var name string
+	if err := s.H.DB.Raw("SELECT name FROM users where id=?", fromId).Scan(&name).Error; err != nil {
+		return  errors.New("could not get user name from DB")
+	}
+
 	text := ""
-	text = fmt.Sprintf("You have a new %s from %d for post %d", notificationType, userId, postId)
+	text = fmt.Sprintf("You have a new %s from %s for post %d", notificationType, name, postId)
 	query := `
     INSERT INTO notifications(user_id,from_id, post_id,time, text, type)
     VALUES (?, ?, ?, ?, ?,?)
