@@ -1104,7 +1104,7 @@ func (s *Server) EditMonthlyGoal(ctx context.Context, req *pb.EditMonthlyGoalReq
 			Day:      req.Day,
 		}, errors.New("added the goal")
 	}
-	err := s.H.DB.Exec("UPDATE monthly_goals set amount = ? and day= ? and category =? where user_id = ?", req.Amount, req.Day, req.Category, req.Userid).Error
+	err := s.H.DB.Exec("UPDATE monthly_goals set amount = ? , day= ? , category =? where user_id = ?", req.Amount, req.Day, req.Category, req.Userid).Error
 	if err != nil {
 		fmt.Println(err)
 		return &pb.EditMonthlyGoalResponse{Status: http.StatusBadGateway, Response: "Could not Update the goal details"}, err
